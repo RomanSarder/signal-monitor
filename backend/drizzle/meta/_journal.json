@@ -8,6 +8,20 @@
       "when": 1781002632582,
       "tag": "0000_useful_masked_marvel",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781033386732,
+      "tag": "0001_wealthy_nighthawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781033705579,
+      "tag": "0002_bumpy_spiral",
+      "breakpoints": true
     }
   ]
 }

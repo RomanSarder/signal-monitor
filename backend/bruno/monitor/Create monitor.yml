@@ -1,0 +1,24 @@
+info:
+  name: Create monitor
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:3000/monitors
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Job monitor",
+        "sources": ["reddit", "hn"],
+        "keywords": ["react developer", "react senior", "frontend"],
+        "intervalMinutes": 30
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,3 +1,4 @@
+import fastifyPlugin from "fastify-plugin";
 import { FastifyPluginAsync } from "fastify";
 import jwt from "./jwt";
 import signUpController from "./sign-up.controller";
@@ -17,4 +18,4 @@ const auth: FastifyPluginAsync = async (fastify) => {
   );
 };
 
-export default auth;
+export default fastifyPlugin(auth);

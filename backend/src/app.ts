@@ -6,6 +6,7 @@ import env from "./env";
 import db from "./db/db";
 import cache from "./cache";
 import auth from "./auth";
+import { monitor } from "./monitor";
 
 const app: FastifyPluginAsync = async (fastify): Promise<void> => {
   await fastify.register(env);
@@ -15,6 +16,7 @@ const app: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.register(cache);
 
   fastify.register(auth);
+  fastify.register(monitor);
   fastify.get("/health", async () => ({ status: "ok" }));
 };
 

@@ -1,0 +1,1 @@
+CREATE TYPE "public"."monitor_status" AS ENUM('active', 'paused');

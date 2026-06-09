@@ -1,0 +1,15 @@
+info:
+  name: Update monitor
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: http://localhost:3000/0e3ca379-604d-470c-8521-b6da70757edd
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -1,0 +1,15 @@
+info:
+  name: Delete monitor
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: http://localhost:3000/monitors/0e3ca379-604d-470c-8521-b6da70757edd
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

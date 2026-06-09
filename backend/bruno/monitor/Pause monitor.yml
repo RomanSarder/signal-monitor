@@ -1,0 +1,15 @@
+info:
+  name: Pause monitor
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: http://localhost:3000/monitors/0e3ca379-604d-470c-8521-b6da70757edd/status/pause
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
