@@ -22,10 +22,13 @@
   "license": "ISC",
   "dependencies": {
     "@fastify/autoload": "^6.0.0",
+    "@fastify/cookie": "^11.0.2",
     "@fastify/env": "^6.0.0",
     "@fastify/error": "^4.2.0",
+    "@fastify/jwt": "^10.1.0",
     "@fastify/redis": "^7.2.0",
     "@fastify/sensible": "^6.0.0",
+    "bcrypt": "^6.0.0",
     "drizzle-orm": "^0.45.2",
     "fastify": "^5.0.0",
     "fastify-cli": "^8.0.0",
@@ -34,6 +37,7 @@
     "postgres": "^3.4.9"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^25.9.2",
     "@types/pg": "^8.20.0",
     "c8": "^11.0.0",

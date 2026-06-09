@@ -6,19 +6,28 @@ declare module "fastify" {
     config: {
       DATABASE_URL: string;
       REDIS_URL: string;
+      SECRET: string;
+      NODE_ENV: "development" | "production" | "test";
     };
   }
 }
 
 const schema = {
   type: "object",
-  required: ["DATABASE_URL", "REDIS_URL"],
+  required: ["DATABASE_URL", "REDIS_URL", "SECRET", "NODE_ENV"],
   properties: {
     DATABASE_URL: {
       type: "string",
     },
     REDIS_URL: {
       type: "string",
+    },
+    SECRET: {
+      type: "string",
+    },
+    NODE_ENV: {
+      type: "string",
+      default: "development",
     },
   },
 };
