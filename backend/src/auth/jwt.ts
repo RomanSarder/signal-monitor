@@ -14,6 +14,10 @@ declare module "fastify" {
     namespace: "security";
   }> {
     authenticate(req: FastifyRequest, reply: FastifyReply): Promise<void>;
+    signJwt(
+      { id, email }: { id: string; email: string },
+      reply: FastifyReply,
+    ): Promise<void>;
   }
 }
 
@@ -33,6 +37,30 @@ export default fastifyPlugin(async (fastify) => {
       } catch (err) {
         reply.send(err);
       }
+    },
+  );
+
+  fastify.decorate(
+    "signJwt",
+    async function (
+      { id, email }: { id: string; email: string },
+      reply: FastifyReply,
+    ) {
+      const token = await reply.jwtSign({
+        id: id,
+        email: email,
+      });
+
+      reply
+        .setCookie(COOKIE_NAME, token, {
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          httpOnly: true,
+          maxAge: 60 * 60 * 24 * 7, // 7 days
+        })
+        .code(200)
+        .send("ok");
     },
   );
 });

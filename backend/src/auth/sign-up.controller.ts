@@ -2,7 +2,6 @@ import { FastifyPluginAsync } from "fastify";
 import { AuthBody, authBodySchema } from "./auth.schema";
 import { users } from "../db/schema";
 import bcrypt from "bcrypt";
-import { COOKIE_NAME } from "./jwt";
 
 const signUpController: FastifyPluginAsync = async (fastify) => {
   fastify.post<{ Body: AuthBody }>(
@@ -24,21 +23,9 @@ const signUpController: FastifyPluginAsync = async (fastify) => {
         .returning()
         .onConflictDoNothing();
 
-      const token = await reply.jwtSign({
-        id: user.id,
-        email: user.email,
-      });
+      await fastify.signJwt({ id: user.id, email: user.email }, reply);
 
-      reply
-        .setCookie(COOKIE_NAME, token, {
-          path: "/",
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-          httpOnly: true,
-          maxAge: 60 * 60 * 24 * 7,
-        })
-        .code(200)
-        .send("ok");
+      return reply.code(201).send("ok");
     },
   );
 };
