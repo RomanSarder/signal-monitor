@@ -18,7 +18,7 @@ const signInController: FastifyPluginAsync = async (fastify) => {
       if (!existingUser) {
         // Be deliberately vague about which credention is incorrect
         // To prevent user enumeration
-        return reply.code(401).send({ message: "Invalid credentials" });
+        return reply.unauthorized("Invalid credentials");
       }
 
       const isCorrectPassword = await bcrypt.compare(
@@ -27,7 +27,7 @@ const signInController: FastifyPluginAsync = async (fastify) => {
       );
 
       if (!isCorrectPassword) {
-        return reply.code(401).send({ message: "Invalid credentials" });
+        return reply.unauthorized("Invalid credentials");
       }
 
       await fastify.signJwt(

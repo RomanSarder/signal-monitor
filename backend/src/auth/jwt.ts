@@ -35,7 +35,7 @@ export default fastifyPlugin(async (fastify) => {
       try {
         await req.jwtVerify();
       } catch (err) {
-        reply.send(err);
+        return reply.unauthorized("Unauthorized");
       }
     },
   );

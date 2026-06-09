@@ -1,5 +1,6 @@
 import { FastifyPluginAsync } from "fastify";
 import cookie from "@fastify/cookie";
+import sensible from "@fastify/sensible";
 
 import env from "./env";
 import db from "./db/db";
@@ -9,6 +10,7 @@ import auth from "./auth";
 const app: FastifyPluginAsync = async (fastify): Promise<void> => {
   await fastify.register(env);
   fastify.register(cookie);
+  fastify.register(sensible);
   fastify.register(db);
   fastify.register(cache);
 
