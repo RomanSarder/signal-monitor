@@ -10,16 +10,18 @@ import {
   singleMonitorUpdatePayloadSchema,
 } from "./schema";
 import { eq } from "drizzle-orm";
+import { and } from "drizzle-orm";
 
 export const monitor: FastifyPluginAsync = async (fastify) => {
   fastify.addHook("onRequest", fastify.authenticate);
 
   fastify.register(
     async (fastify) => {
-      fastify.get("", {}, async () => {
+      fastify.get("", {}, async (request) => {
         return fastify.db
           .select()
           .from(monitors)
+          .where(eq(monitors.userId, request.user.id))
           .orderBy(desc(monitors.createdAt));
       });
 
@@ -54,7 +56,12 @@ export const monitor: FastifyPluginAsync = async (fastify) => {
           const [monitor] = await fastify.db
             .select()
             .from(monitors)
-            .where(eq(monitors.id, request.params.id));
+            .where(
+              and(
+                eq(monitors.id, request.params.id),
+                eq(monitors.userId, request.user.id),
+              ),
+            );
 
           if (!monitor) {
             return reply.notFound("Monitor not found");
@@ -79,7 +86,12 @@ export const monitor: FastifyPluginAsync = async (fastify) => {
           const [updated] = await fastify.db
             .update(monitors)
             .set(request.body)
-            .where(eq(monitors.id, request.params.id))
+            .where(
+              and(
+                eq(monitors.id, request.params.id),
+                eq(monitors.userId, request.user.id),
+              ),
+            )
             .returning();
 
           if (!updated) {
@@ -100,7 +112,12 @@ export const monitor: FastifyPluginAsync = async (fastify) => {
         async (request, reply) => {
           const [updated] = await fastify.db
             .delete(monitors)
-            .where(eq(monitors.id, request.params.id))
+            .where(
+              and(
+                eq(monitors.id, request.params.id),
+                eq(monitors.userId, request.user.id),
+              ),
+            )
             .returning();
 
           if (!updated) {
@@ -122,7 +139,12 @@ export const monitor: FastifyPluginAsync = async (fastify) => {
           const [updated] = await fastify.db
             .update(monitors)
             .set({ status: "paused" })
-            .where(eq(monitors.id, request.params.id))
+            .where(
+              and(
+                eq(monitors.id, request.params.id),
+                eq(monitors.userId, request.user.id),
+              ),
+            )
             .returning();
 
           if (!updated) {
@@ -144,7 +166,12 @@ export const monitor: FastifyPluginAsync = async (fastify) => {
           const [updated] = await fastify.db
             .update(monitors)
             .set({ status: "active" })
-            .where(eq(monitors.id, request.params.id))
+            .where(
+              and(
+                eq(monitors.id, request.params.id),
+                eq(monitors.userId, request.user.id),
+              ),
+            )
             .returning();
 
           if (!updated) {

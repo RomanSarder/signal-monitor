@@ -8,6 +8,7 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 import { users } from "./users";
+import { relations } from "drizzle-orm";
 
 export const status = pgEnum("monitor_status", ["active", "paused"]);
 
@@ -24,4 +25,13 @@ export const monitors = pgTable("monitors", {
   lastRunAt: timestamp("last_run_at"),
   lastResultCount: integer("last_result_count").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const monitorsRelations = relations(monitors, ({ one }) => {
+  return {
+    user: one(users, {
+      fields: [monitors.userId],
+      references: [users.id],
+    }),
+  };
 });

@@ -51,16 +51,13 @@ export default fastifyPlugin(async (fastify) => {
         email: email,
       });
 
-      reply
-        .setCookie(COOKIE_NAME, token, {
-          path: "/",
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "lax",
-          httpOnly: true,
-          maxAge: 60 * 60 * 24 * 7, // 7 days
-        })
-        .code(200)
-        .send("ok");
+      reply.setCookie(COOKIE_NAME, token, {
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        httpOnly: true,
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      });
     },
   );
 });
