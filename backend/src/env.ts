@@ -5,7 +5,8 @@ declare module "fastify" {
   interface FastifyInstance {
     config: {
       DATABASE_URL: string;
-      REDIS_URL: string;
+      REDIS_HOST: string;
+      REDIS_PORT: string;
       SECRET: string;
       NODE_ENV: "development" | "production" | "test";
     };
@@ -19,7 +20,10 @@ const schema = {
     DATABASE_URL: {
       type: "string",
     },
-    REDIS_URL: {
+    REDIS_HOST: {
+      type: "string",
+    },
+    REDIS_PORT: {
       type: "string",
     },
     SECRET: {

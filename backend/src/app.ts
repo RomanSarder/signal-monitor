@@ -7,6 +7,7 @@ import db from "./db/db";
 import cache from "./cache";
 import auth from "./auth";
 import { monitor } from "./monitor";
+import queue from "./queue";
 
 const app: FastifyPluginAsync = async (fastify): Promise<void> => {
   await fastify.register(env);
@@ -14,6 +15,7 @@ const app: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.register(sensible);
   fastify.register(db);
   fastify.register(cache);
+  fastify.register(queue);
 
   fastify.register(auth);
   fastify.register(monitor);
