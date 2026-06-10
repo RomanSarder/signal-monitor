@@ -1,4 +1,5 @@
 import { vi } from "vitest";
+import { Job } from "bullmq";
 import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import sensible from "@fastify/sensible";
 
@@ -17,6 +18,30 @@ export function mockDb(result: unknown) {
     Promise.resolve(result).then(res, rej);
   (chain as any).catch = (rej: any) => Promise.resolve(result).catch(rej);
   return chain as any;
+}
+
+export function mockDbMulti(...results: unknown[]) {
+  let i = 0;
+  const chain: any = {};
+  [
+    "select", "insert", "update", "delete",
+    "from", "where", "values", "set", "orderBy",
+    "returning", "onConflictDoNothing",
+  ].forEach((m) => {
+    chain[m] = () => chain;
+  });
+  chain.then = (res: any, rej?: any) => {
+    const result = results[i++] ?? [];
+    if (result instanceof Error) {
+      return Promise.reject(result).then(res, rej);
+    }
+    return Promise.resolve(result).then(res, rej);
+  };
+  return chain;
+}
+
+export function mockJob<T>(data: T): Job<T> {
+  return { data } as Job<T>;
 }
 
 export function mockPollQueue() {

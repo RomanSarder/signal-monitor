@@ -4,14 +4,22 @@ import { ScoreQueueJob } from "../../queues";
 import { results } from "../../db/schema";
 import { logger } from "../../logger";
 import { isRelevant } from "./classify-relevance";
-import { classifyIntent } from "./classify-intent";
+import type { IntentClassification } from "./classify-intent";
 import type { db as DbInstance } from "../connection";
 
 type Db = typeof DbInstance;
 
 const log = logger.child({ worker: "score-worker" });
 
-export function createScoreProcessor({ db }: { db: Db }) {
+export function createScoreProcessor({ db, classifyIntent }: {
+  db: Db;
+  classifyIntent: (params: {
+    id: string;
+    matchedKeywords: string[];
+    title: string | null;
+    snippet: string;
+  }) => Promise<IntentClassification>;
+}) {
   return async (job: Job<ScoreQueueJob>) => {
     const { resultId } = job.data;
     log.info({ resultId }, "score job started");

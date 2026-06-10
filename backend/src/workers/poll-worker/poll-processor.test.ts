@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import { Job } from "bullmq";
 import { createPollProcessor } from "./poll-processor";
-import { PollQueueJob } from "../../queues";
+import { mockDbMulti, mockJob } from "../../test-utils";
 
 const MONITOR_ID = "00000000-0000-0000-0000-000000000001";
 const JOB_RUN_ID = "00000000-0000-0000-0000-000000000002";
@@ -38,31 +37,7 @@ const hitRow = {
   published_at: new Date(),
 };
 
-// Returns a mock Drizzle chain that resolves each awaited call to the next result
-// in sequence. Pass an Error instance to simulate a rejected DB operation.
-function mockDbMulti(...results: unknown[]) {
-  let i = 0;
-  const chain: any = {};
-  [
-    "select", "insert", "update", "delete",
-    "from", "where", "values", "set", "orderBy",
-    "returning", "onConflictDoNothing",
-  ].forEach((m) => {
-    chain[m] = () => chain;
-  });
-  chain.then = (res: any, rej?: any) => {
-    const result = results[i++] ?? [];
-    if (result instanceof Error) {
-      return Promise.reject(result).then(res, rej);
-    }
-    return Promise.resolve(result).then(res, rej);
-  };
-  return chain;
-}
 
-function mockJob(monitorId: string): Job<PollQueueJob> {
-  return { data: { monitorId } } as Job<PollQueueJob>;
-}
 
 describe("createPollProcessor", () => {
   it("returns early when monitor is not found", async () => {
@@ -71,7 +46,7 @@ describe("createPollProcessor", () => {
     const scoreQueue = { add: vi.fn() };
     const redis = { eval: vi.fn() };
 
-    await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob(MONITOR_ID));
+    await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID }));
 
     expect(hnAdapter.fetchKeyword).not.toHaveBeenCalled();
     expect(scoreQueue.add).not.toHaveBeenCalled();
@@ -83,7 +58,7 @@ describe("createPollProcessor", () => {
     const scoreQueue = { add: vi.fn() };
     const redis = { eval: vi.fn() };
 
-    await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob(MONITOR_ID));
+    await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID }));
 
     expect(hnAdapter.fetchKeyword).not.toHaveBeenCalled();
     expect(scoreQueue.add).not.toHaveBeenCalled();
@@ -96,7 +71,7 @@ describe("createPollProcessor", () => {
     const scoreQueue = { add: vi.fn().mockResolvedValue(undefined) };
     const hnAdapter = { fetchKeyword: vi.fn().mockResolvedValue([hitRow]) };
 
-    await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob(MONITOR_ID));
+    await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID }));
 
     expect(hnAdapter.fetchKeyword).toHaveBeenCalledWith("signal", expect.any(Number));
     expect(scoreQueue.add).toHaveBeenCalledOnce();
@@ -110,7 +85,7 @@ describe("createPollProcessor", () => {
     const scoreQueue = { add: vi.fn() };
     const hnAdapter = { fetchKeyword: vi.fn().mockResolvedValue([hitRow]) };
 
-    await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob(MONITOR_ID));
+    await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID }));
 
     expect(scoreQueue.add).not.toHaveBeenCalled();
   });
@@ -123,7 +98,7 @@ describe("createPollProcessor", () => {
     const hnAdapter = { fetchKeyword: vi.fn().mockRejectedValue(new Error("fetch failed")) };
 
     await expect(
-      createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob(MONITOR_ID)),
+      createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID })),
     ).resolves.toBeUndefined();
 
     expect(scoreQueue.add).not.toHaveBeenCalled();
@@ -137,7 +112,7 @@ describe("createPollProcessor", () => {
     const hnAdapter = { fetchKeyword: vi.fn().mockResolvedValue([]) };
 
     await expect(
-      createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob(MONITOR_ID)),
+      createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID })),
     ).resolves.toBeUndefined();
   });
 });
