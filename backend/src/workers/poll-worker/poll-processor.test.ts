@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { Job } from "bullmq";
 import { createPollProcessor } from "./poll-processor";
-import { PollQueueJob } from "../queues";
+import { PollQueueJob } from "../../queues";
 
 const MONITOR_ID = "00000000-0000-0000-0000-000000000001";
 const JOB_RUN_ID = "00000000-0000-0000-0000-000000000002";

@@ -1,12 +1,12 @@
 import { Job } from "bullmq";
 import { eq } from "drizzle-orm";
-import { PollQueueJob } from "../queues";
-import { logger } from "../logger";
-import { monitors } from "../db/schema";
-import { results } from "../db/schema/results";
-import { jobRuns } from "../db/schema/jobRuns";
-import { jobRunSources } from "../db/schema/jobRunSources";
-import { SourceAdapter } from "../source/adapter";
+import { PollQueueJob } from "../../queues";
+import { logger } from "../../logger";
+import { monitors } from "../../db/schema";
+import { results } from "../../db/schema/results";
+import { jobRuns } from "../../db/schema/jobRuns";
+import { jobRunSources } from "../../db/schema/jobRunSources";
+import { SourceAdapter } from "../../source/adapter";
 
 const log = logger.child({ worker: "poll-worker" });
 

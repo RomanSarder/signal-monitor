@@ -27,7 +27,9 @@ export const results = pgTable(
     publishedAt: timestamp("published_at", { withTimezone: true }).notNull(),
     matchedKeywords: text("matched_keywords").array().notNull(),
     intentScore: integer("intent_score"),
-    intentCategory: text("intent_category"),
+    intentCategory: text("intent_category").$type<
+      "hiring" | "noise" | "pain_point" | "discussion"
+    >(),
     intentReason: text("intent_reason"),
     scoredAt: timestamp("scored_at", { withTimezone: true }),
     isRead: boolean().default(false),

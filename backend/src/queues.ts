@@ -11,7 +11,7 @@ export interface ScoreQueueJob {
 
 const connection: ConnectionOptions = {
   host: process.env.REDIS_HOST!,
-  port: parseInt(process.env.REDIS_URL!, 10) || 6379,
+  port: parseInt(process.env.REDIS_PORT!, 10) || 6379,
 };
 
 // Provide all 6 type params so NameType resolves to a concrete `string` rather
