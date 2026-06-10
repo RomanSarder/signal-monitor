@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import Fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import sensible from "@fastify/sensible";
 
@@ -18,8 +19,17 @@ export function mockDb(result: unknown) {
   return chain as any;
 }
 
+export function mockPollQueue() {
+  return {
+    add: vi.fn().mockResolvedValue(undefined),
+    upsertJobScheduler: vi.fn().mockResolvedValue(undefined),
+    removeJobScheduler: vi.fn().mockResolvedValue(undefined),
+  };
+}
+
 export interface BuildOptions {
   authenticated?: boolean;
+  pollQueue?: ReturnType<typeof mockPollQueue>;
 }
 
 export function buildApp(db: any, opts: BuildOptions = {}): FastifyInstance {
@@ -28,6 +38,7 @@ export function buildApp(db: any, opts: BuildOptions = {}): FastifyInstance {
 
   app.register(sensible);
   app.decorate("db", db);
+  app.decorate("pollQueue", (opts.pollQueue ?? mockPollQueue()) as any);
   app.decorate(
     "authenticate",
     async function (req: FastifyRequest, reply: FastifyReply) {
