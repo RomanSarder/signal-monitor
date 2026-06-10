@@ -15,7 +15,7 @@ declare module "fastify" {
 
 const schema = {
   type: "object",
-  required: ["DATABASE_URL", "REDIS_URL", "SECRET", "NODE_ENV"],
+  required: ["DATABASE_URL", "REDIS_HOST", "REDIS_PORT", "SECRET", "NODE_ENV"],
   properties: {
     DATABASE_URL: {
       type: "string",

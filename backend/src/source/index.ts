@@ -1,0 +1,1 @@
+export { hackerNewsSourceAdapter } from "./hn";

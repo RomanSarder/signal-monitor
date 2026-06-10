@@ -9,8 +9,10 @@ export const jobRuns = pgTable("job_runs", {
   monitorId: uuid("monitor_id").references(() => monitors.id, {
     onDelete: "cascade",
   }),
-  jobType: text("job_type").notNull(),
-  status: text().notNull(),
+  jobType: text("job_type").notNull().$type<"poll" | "score" | "digest">(),
+  status: text()
+    .notNull()
+    .$type<"started" | "completed" | "completed_with_errors" | "failed">(),
   startedAt: timestamp("started_at", { withTimezone: true }).notNull(),
   finishedAt: timestamp("finished_at", { withTimezone: true }),
 });

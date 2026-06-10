@@ -1,6 +1,8 @@
-import { ConnectionOptions, Queue } from "bullmq";
-import IORedis from "ioredis";
+import { Queue } from "bullmq";
 import fastifyPlugin from "fastify-plugin";
+import { pollQueue, scoreQueue, digestQueue } from "./queues";
+
+export type { PollQueueJob, ScoreQueueJob } from "./queues";
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -11,29 +13,7 @@ declare module "fastify" {
 }
 
 export default fastifyPlugin(async (fastify) => {
-  const connection = new IORedis({
-    host: fastify.config.REDIS_HOST,
-    port: parseInt(fastify.config.REDIS_PORT, 10),
-  }) as unknown as ConnectionOptions;
-
-  fastify.decorate(
-    "pollQueue",
-    new Queue("pollQueue", {
-      connection,
-    }),
-  );
-
-  fastify.decorate(
-    "scoreQueue",
-    new Queue("scoreQueue", {
-      connection,
-    }),
-  );
-
-  fastify.decorate(
-    "digestQueue",
-    new Queue("digestQueue", {
-      connection,
-    }),
-  );
+  fastify.decorate("pollQueue", pollQueue);
+  fastify.decorate("scoreQueue", scoreQueue);
+  fastify.decorate("digestQueue", digestQueue);
 });

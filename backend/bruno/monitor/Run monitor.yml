@@ -1,0 +1,15 @@
+info:
+  name: Run monitor
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: http://localhost:3000/monitors/a0af7e31-bb56-4402-8401-1afa26cb069a/run
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

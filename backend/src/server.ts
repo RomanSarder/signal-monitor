@@ -1,17 +1,25 @@
 import Fastify from "fastify";
 import { config } from "dotenv";
+import app from "./app";
 
 config();
 
-const app = Fastify({ logger: true });
+const server = Fastify({
+  logger: {
+    transport: {
+      target: "pino-pretty",
+      options: { colorize: true },
+    },
+  },
+});
 
-app.get("/health", async () => ({ status: "ok" }));
+server.register(app);
 
-app.listen(
+server.listen(
   { port: Number(process.env.PORT) || 3000, host: "0.0.0.0" },
   (err) => {
     if (err) {
-      app.log.error(err);
+      server.log.error(err);
       process.exit(1);
     }
   },

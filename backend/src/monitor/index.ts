@@ -41,6 +41,14 @@ export const monitor: FastifyPluginAsync = async (fastify) => {
             })
             .returning();
 
+          fastify.pollQueue.upsertJobScheduler(
+            newMonitor.id,
+            {
+              every: newMonitor.intervalMinutes * 60 * 1000,
+            },
+            { name: "poll-request", data: { monitorId: newMonitor.id } },
+          );
+
           return newMonitor;
         },
       );
@@ -124,6 +132,8 @@ export const monitor: FastifyPluginAsync = async (fastify) => {
             return reply.notFound("Monitor not found");
           }
 
+          fastify.pollQueue.removeJobScheduler(updated.id);
+
           return updated;
         },
       );
@@ -150,6 +160,8 @@ export const monitor: FastifyPluginAsync = async (fastify) => {
           if (!updated) {
             return reply.notFound("Monitor not found");
           }
+
+          fastify.pollQueue.removeJobScheduler(updated.id);
 
           return updated;
         },
@@ -178,7 +190,43 @@ export const monitor: FastifyPluginAsync = async (fastify) => {
             return reply.notFound("Monitor not found");
           }
 
+          fastify.pollQueue.upsertJobScheduler(
+            updated.id,
+            {
+              every: updated.intervalMinutes * 60 * 1000,
+            },
+            { name: "poll-request", data: { monitorId: updated.id } },
+          );
+
           return updated;
+        },
+      );
+
+      fastify.post<{ Params: SingleMonitorParams }>(
+        "/:id/run",
+        {
+          schema: {
+            params: singleMonitorParamsSchema,
+          },
+        },
+        async (request, reply) => {
+          const [monitor] = await fastify.db
+            .select()
+            .from(monitors)
+            .where(
+              and(
+                eq(monitors.id, request.params.id),
+                eq(monitors.userId, request.user.id),
+              ),
+            );
+
+          if (!monitor) {
+            return reply.notFound("Monitor not found");
+          }
+
+          await fastify.pollQueue.add("poll-request", {
+            monitorId: monitor.id,
+          });
         },
       );
     },
