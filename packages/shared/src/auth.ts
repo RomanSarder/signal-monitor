@@ -8,3 +8,8 @@ export interface MeResponse {
   email: string;
   createdAt: string;
 }
+
+export interface ChangePasswordBody {
+  currentPassword: string;
+  newPassword: string;
+}

@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Settings } from "lucide-react";
 import { useMe, useSignOut } from "./auth/queries";
 
 export default function TopNav() {
@@ -28,6 +29,14 @@ export default function TopNav() {
         {me?.email && (
           <span className="hidden sm:block text-sm text-zinc-500 truncate min-w-0">{me.email}</span>
         )}
+        <Link
+          to="/settings"
+          aria-label="Settings"
+          activeProps={{ className: "text-indigo-600" }}
+          inactiveProps={{ className: "text-zinc-500 hover:text-zinc-900" }}
+        >
+          <Settings size={16} aria-hidden="true" />
+        </Link>
         <button
           onClick={() =>
             signOut.mutate(undefined, {
