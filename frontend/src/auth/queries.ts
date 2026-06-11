@@ -31,3 +31,11 @@ export function useSignUp() {
     onSuccess: () => qc.invalidateQueries({ queryKey: meQueryKey }),
   });
 }
+
+export function useSignOut() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => apiFetch("/auth/sign-out", { method: "POST" }),
+    onSuccess: () => qc.clear(),
+  });
+}

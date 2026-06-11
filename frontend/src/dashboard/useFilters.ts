@@ -7,25 +7,28 @@ export interface FilterState {
   monitorId: string;
   from: string;
   to: string;
+  sort: "newest" | "score";
 }
 
-const DEFAULTS: FilterState = {
+export const FILTER_DEFAULTS: FilterState = {
   categories: [],
-  minScore: 1,
+  minScore: 4,
   monitorId: "",
   from: "",
   to: "",
+  sort: "newest",
 };
 
 export function useFilters() {
-  const [filters, setFilters] = useState<FilterState>(DEFAULTS);
+  const [filters, setFilters] = useState<FilterState>(FILTER_DEFAULTS);
   return {
     filters,
-    setCategories: (v: IntentCategory[]) => setFilters(f => ({ ...f, categories: v })),
-    setMinScore:   (v: number)           => setFilters(f => ({ ...f, minScore: v })),
-    setMonitorId:  (v: string)           => setFilters(f => ({ ...f, monitorId: v })),
-    setFrom:       (v: string)           => setFilters(f => ({ ...f, from: v })),
-    setTo:         (v: string)           => setFilters(f => ({ ...f, to: v })),
-    clearFilters:  ()                    => setFilters(DEFAULTS),
+    setCategories: (v: IntentCategory[])       => setFilters(f => ({ ...f, categories: v })),
+    setMinScore:   (v: number)                 => setFilters(f => ({ ...f, minScore: v })),
+    setMonitorId:  (v: string)                 => setFilters(f => ({ ...f, monitorId: v })),
+    setFrom:       (v: string)                 => setFilters(f => ({ ...f, from: v })),
+    setTo:         (v: string)                 => setFilters(f => ({ ...f, to: v })),
+    setSort:       (v: "newest" | "score")     => setFilters(f => ({ ...f, sort: v })),
+    clearFilters:  ()                          => setFilters(FILTER_DEFAULTS),
   };
 }

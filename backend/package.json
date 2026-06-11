@@ -9,11 +9,11 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "start": "npm run build:ts && fastify start --pretty-print -l info dist/app.js",
+    "start": "npm run build:ts && fastify start --pretty-print -l info dist/backend/src/app.js",
     "build:ts": "tsc",
     "watch:ts": "tsc -w",
     "dev": "npm run build:ts && concurrently -k -p \"[{name}]\" -n \"TypeScript,App\" -c \"yellow.bold,cyan.bold\" \"npm:watch:ts\" \"npm:dev:start\"",
-    "dev:start": "fastify start --ignore-watch=.ts$ -w -l info -P dist/app.js",
+    "dev:start": "fastify start --ignore-watch=.ts$ -w -l info -P dist/backend/src/app.js",
     "worker:poll": "tsx src/workers/poll-worker/index.ts",
     "worker:score": "tsx src/workers/score-worker/index.ts",
     "eval:intent": "tsx src/evals/intent-eval.ts",

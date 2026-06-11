@@ -1,6 +1,7 @@
 import { MultiSelect, MultiSelectItem, Select, SelectItem } from "@tremor/react";
 import type { IntentCategory, Monitor } from "@signal-monitor/shared";
 import type { FilterState } from "./useFilters";
+import { FILTER_DEFAULTS } from "./useFilters";
 
 interface FilterBarProps {
   filters: FilterState;
@@ -10,6 +11,7 @@ interface FilterBarProps {
   onMonitorIdChange: (v: string) => void;
   onFromChange: (v: string) => void;
   onToChange: (v: string) => void;
+  onSortChange: (v: "newest" | "score") => void;
   onClear: () => void;
 }
 
@@ -31,14 +33,16 @@ export default function FilterBar({
   onMonitorIdChange,
   onFromChange,
   onToChange,
+  onSortChange,
   onClear,
 }: FilterBarProps) {
   const hasActiveFilters =
     filters.categories.length > 0 ||
-    filters.minScore > 1 ||
+    filters.minScore !== FILTER_DEFAULTS.minScore ||
     filters.monitorId !== "" ||
     filters.from !== "" ||
-    filters.to !== "";
+    filters.to !== "" ||
+    filters.sort !== FILTER_DEFAULTS.sort;
 
   return (
     <div className="bg-white border-b border-zinc-200 px-4 sm:px-6 py-3">
@@ -71,6 +75,17 @@ export default function FilterBar({
             onChange={e => onMinScoreChange(Number(e.target.value))}
             className="w-full h-2 accent-indigo-600 cursor-pointer"
           />
+        </div>
+
+        <div className="min-w-[160px] flex-1">
+          <label className="block text-xs text-zinc-500 mb-1">Sort</label>
+          <Select
+            value={filters.sort}
+            onValueChange={v => onSortChange(v as "newest" | "score")}
+          >
+            <SelectItem value="newest">Newest first</SelectItem>
+            <SelectItem value="score">Highest score</SelectItem>
+          </Select>
         </div>
 
         <div className="min-w-[160px] flex-1">
