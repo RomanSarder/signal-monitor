@@ -34,7 +34,7 @@ export const results = pgTable(
     scoredAt: timestamp("scored_at", { withTimezone: true }),
     isRead: boolean().default(false),
     isSaved: boolean().default(false),
-    createdAt: timestamp("created_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   },
   (table) => {
     return {

@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: http://localhost:3000/monitors/a0af7e31-bb56-4402-8401-1afa26cb069a/run
+  url: http://localhost:3000/monitors/8bc0f8f3-f12d-47f7-ace1-9013a3bad90e/run
   auth: inherit
 
 settings:

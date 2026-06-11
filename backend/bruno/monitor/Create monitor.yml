@@ -10,10 +10,18 @@ http:
     type: json
     data: |-
       {
-        "name": "Hiring signal",
-        "sources": ["hs"],
-        "keywords": ["who is hiring", "we are hiring", "hiring remote engineer", "job opening"],
-        "intervalMinutes": 30
+        "name": "Painpoints",
+        "sources": [
+          "hs"
+        ],
+        "keywords": [
+          "Ask HN: how do I",
+          "struggling with React",
+          "anyone solved",
+          "frontend performance",
+          "TypeScript help"
+        ],
+        "intervalMinutes": 10080
       }
   auth: inherit
 

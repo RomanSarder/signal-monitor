@@ -5,7 +5,15 @@ info:
 
 http:
   method: PATCH
-  url: http://localhost:3000/0e3ca379-604d-470c-8521-b6da70757edd
+  url: http://localhost:3000/monitors/a0af7e31-bb56-4402-8401-1afa26cb069a
+  body:
+    type: json
+    data: |-
+      {
+        "keywords": ["ask hn"],
+        "intervalMinutes": 1440,
+        "sources": ["hs"]
+      }
   auth: inherit
 
 settings:

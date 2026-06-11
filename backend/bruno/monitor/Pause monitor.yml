@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: http://localhost:3000/monitors/0e3ca379-604d-470c-8521-b6da70757edd/status/pause
+  url: http://localhost:3000/monitors/bd54162b-b337-42e6-ab3b-143173c34e49/status/pause
   auth: inherit
 
 settings:
