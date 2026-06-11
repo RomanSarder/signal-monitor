@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Monitor, PatchResultBody, ResultsListResponse } from "@signal-monitor/shared";
+import type { Monitor, PatchResultBody, ResultsListResponse, ResultStats } from "@signal-monitor/shared";
 import { apiFetch } from "../api";
 import type { FilterState } from "./useFilters";
 
@@ -25,6 +25,7 @@ export function useInfiniteResults(filters: FilterState) {
       if (filters.categories.length === 1) p.set("category", filters.categories[0]);
       if (filters.minScore > 1) p.set("minScore", String(filters.minScore));
       if (filters.monitorId) p.set("monitorId", filters.monitorId);
+      if (filters.savedOnly) p.set("isSaved", "true");
       if (filters.from) p.set("from", filters.from);
       if (filters.to) p.set("to", filters.to);
       p.set("sort", filters.sort);
@@ -33,6 +34,20 @@ export function useInfiniteResults(filters: FilterState) {
     getNextPageParam: (lastPage, allPages) => {
       if (lastPage.items.length < PAGE_SIZE) return undefined;
       return allPages.reduce((sum, p) => sum + p.items.length, 0);
+    },
+  });
+}
+
+export const statsQueryKey = (monitorId: string) =>
+  ["results", "stats", monitorId] as const;
+
+export function useStats(filters: Pick<FilterState, "monitorId">) {
+  return useQuery<ResultStats>({
+    queryKey: statsQueryKey(filters.monitorId),
+    queryFn: () => {
+      const p = new URLSearchParams();
+      if (filters.monitorId) p.set("monitorId", filters.monitorId);
+      return apiFetch(`/results/stats${p.size ? `?${p}` : ""}`);
     },
   });
 }

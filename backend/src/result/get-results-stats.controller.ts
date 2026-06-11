@@ -1,21 +1,28 @@
 import { FastifyPluginAsync } from "fastify";
-import { resultStatsSchema } from "./schema";
+import { resultStatsSchema, statsQuerySchema, GetResultsStatsQuery } from "./schema";
 import { monitors, results } from "../db/schema";
-import { eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 
 export const getResultsStatsController: FastifyPluginAsync = async (
   fastify,
 ) => {
   fastify.addHook("onRequest", fastify.authenticate);
 
-  fastify.get(
+  fastify.get<{ Querystring: GetResultsStatsQuery }>(
     "/stats",
-    { schema: { response: { 200: resultStatsSchema } } },
+    { schema: { querystring: statsQuerySchema, response: { 200: resultStatsSchema } } },
     async (request) => {
+      const { monitorId } = request.query;
+
       const userMonitorIds = fastify.db
         .select({ id: monitors.id })
         .from(monitors)
         .where(eq(monitors.userId, request.user.id));
+
+      const whereClause = and(
+        inArray(results.monitorId, userMonitorIds),
+        monitorId ? eq(results.monitorId, monitorId) : undefined,
+      );
 
       const [byCategory, bySource, byDay] = await Promise.all([
         fastify.db
@@ -24,7 +31,7 @@ export const getResultsStatsController: FastifyPluginAsync = async (
             count: sql<number>`count(*)::int`,
           })
           .from(results)
-          .where(inArray(results.monitorId, userMonitorIds))
+          .where(whereClause)
           .groupBy(results.intentCategory),
 
         fastify.db
@@ -33,7 +40,7 @@ export const getResultsStatsController: FastifyPluginAsync = async (
             count: sql<number>`count(*)::int`,
           })
           .from(results)
-          .where(inArray(results.monitorId, userMonitorIds))
+          .where(whereClause)
           .groupBy(results.source),
 
         fastify.db
@@ -42,7 +49,7 @@ export const getResultsStatsController: FastifyPluginAsync = async (
             count: sql<number>`count(*)::int`,
           })
           .from(results)
-          .where(inArray(results.monitorId, userMonitorIds))
+          .where(whereClause)
           .groupBy(sql`date_trunc('day', ${results.createdAt})`)
           .orderBy(sql`date_trunc('day', ${results.createdAt})`),
       ]);

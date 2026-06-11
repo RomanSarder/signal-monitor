@@ -8,6 +8,7 @@ export interface FilterState {
   from: string;
   to: string;
   sort: "newest" | "score";
+  savedOnly: boolean;
 }
 
 export const FILTER_DEFAULTS: FilterState = {
@@ -17,6 +18,7 @@ export const FILTER_DEFAULTS: FilterState = {
   from: "",
   to: "",
   sort: "newest",
+  savedOnly: false,
 };
 
 export function useFilters() {
@@ -29,6 +31,7 @@ export function useFilters() {
     setFrom:       (v: string)                 => setFilters(f => ({ ...f, from: v })),
     setTo:         (v: string)                 => setFilters(f => ({ ...f, to: v })),
     setSort:       (v: "newest" | "score")     => setFilters(f => ({ ...f, sort: v })),
+    setSavedOnly:  (v: boolean)                => setFilters(f => ({ ...f, savedOnly: v })),
     clearFilters:  ()                          => setFilters(FILTER_DEFAULTS),
   };
 }

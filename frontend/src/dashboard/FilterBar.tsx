@@ -12,6 +12,7 @@ interface FilterBarProps {
   onFromChange: (v: string) => void;
   onToChange: (v: string) => void;
   onSortChange: (v: "newest" | "score") => void;
+  onSavedOnlyChange: (v: boolean) => void;
   onClear: () => void;
 }
 
@@ -34,6 +35,7 @@ export default function FilterBar({
   onFromChange,
   onToChange,
   onSortChange,
+  onSavedOnlyChange,
   onClear,
 }: FilterBarProps) {
   const hasActiveFilters =
@@ -42,7 +44,8 @@ export default function FilterBar({
     filters.monitorId !== "" ||
     filters.from !== "" ||
     filters.to !== "" ||
-    filters.sort !== FILTER_DEFAULTS.sort;
+    filters.sort !== FILTER_DEFAULTS.sort ||
+    filters.savedOnly;
 
   return (
     <div className="bg-white border-b border-zinc-200 px-4 sm:px-6 py-3">
@@ -122,6 +125,18 @@ export default function FilterBar({
             className={dateInputClass}
           />
         </div>
+
+        <label className="flex items-center gap-2 h-9 px-3 text-sm border rounded-tremor-default shrink-0 cursor-pointer select-none transition-colors
+          border-zinc-200 text-zinc-700 hover:bg-zinc-50
+          has-[:checked]:border-indigo-600 has-[:checked]:text-indigo-600 has-[:checked]:bg-indigo-50">
+          <input
+            type="checkbox"
+            checked={filters.savedOnly}
+            onChange={e => onSavedOnlyChange(e.target.checked)}
+            className="accent-indigo-600 h-4 w-4 shrink-0"
+          />
+          Saved only
+        </label>
 
         <button
           onClick={onClear}

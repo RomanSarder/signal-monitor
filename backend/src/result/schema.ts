@@ -25,6 +25,17 @@ export const patchResultBodySchema = {
   },
 } as const;
 
+export interface GetResultsStatsQuery {
+  monitorId?: string;
+}
+
+export const statsQuerySchema = {
+  type: "object",
+  properties: {
+    monitorId: { type: "string" },
+  },
+} as const;
+
 export const resultStatsSchema = {
   type: "object",
   properties: {

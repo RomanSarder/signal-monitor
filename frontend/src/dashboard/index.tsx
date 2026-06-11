@@ -1,8 +1,9 @@
 import { Radio } from "lucide-react";
 import { useMe, useSignOut } from "../auth/queries";
-import { useMonitors, useInfiniteResults } from "./queries";
+import { useMonitors, useInfiniteResults, useStats } from "./queries";
 import { useFilters } from "./useFilters";
 import FilterBar from "./FilterBar";
+import StatsBar from "./StatsBar";
 import ResultCard from "./ResultCard";
 import ResultSkeleton from "./ResultSkeleton";
 import EmptyState from "./EmptyState";
@@ -11,10 +12,11 @@ export default function Dashboard() {
   const { data: me } = useMe();
   const signOut = useSignOut();
   const { data: monitors = [] } = useMonitors();
-  const { filters, setCategories, setMinScore, setMonitorId, setFrom, setTo, setSort, clearFilters } =
+  const { filters, setCategories, setMinScore, setMonitorId, setFrom, setTo, setSort, setSavedOnly, clearFilters } =
     useFilters();
   const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useInfiniteResults(filters);
+  const { data: stats, isLoading: isStatsLoading } = useStats(filters);
   const allItems = data?.pages.flatMap(p => p.items) ?? [];
   const total = data?.pages[0]?.total ?? 0;
 
@@ -115,8 +117,11 @@ export default function Dashboard() {
         onFromChange={setFrom}
         onToChange={setTo}
         onSortChange={setSort}
+        onSavedOnlyChange={setSavedOnly}
         onClear={clearFilters}
       />
+
+      <StatsBar data={stats} isLoading={isStatsLoading} />
 
       <main className="flex-1 flex flex-col">
         {renderFeed()}
