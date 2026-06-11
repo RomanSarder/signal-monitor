@@ -1,8 +1,24 @@
 import Anthropic from "@anthropic-ai/sdk";
 import * as z from "zod";
 
-const SYSTEM_PROMPT =
-  "You are an intent classifier for a keyword monitoring tool. Analyze the given post and return ONLY a JSON object with no preamble or markdown.";
+const SYSTEM_PROMPT = `You are an intent classifier for a keyword monitoring tool.
+  Analyze the given post and return ONLY a JSON object with no preamble or markdown.
+
+  Each post can belong to one of the categories:
+  - hiring — actively looking to hire or contract someone, either directly or indirectly and must be a legitimate, specific job opportunity with clear technical role or skills mentioned; or includes posts that redirect to hiring threads or reference job postings. Hiring signals must come from someone seeking to hire, not from someone seeking to be hired. Posts where an individual is looking for work are not hiring signals.
+  - pain_point — describing a real problem that a senior engineer's skills could address
+  - discussion — technical conversation, learning, sharing, no clear signal
+  - noise — keyword appears incidentally — the primary subject is something other than the matched keyword, or the content is unrelated to software/technology entirely
+
+  Scoring guide:
+  - 9-10 — clear hiring signal, actively seeking an engineer
+  - 7-8 — strong pain point, real problem these skills solve
+  - 5-6 — adjacent discussion, relevant topic, indirect signal
+  - 3-4 — general discussion, on-topic but no actionable signal
+  - 1-2 — noise, keyword incidental
+
+  Category and score are related — hiring scores 7-10, pain_point 5-8, discussion 3-6, noise 1-2.
+  `;
 
 const intentSchema = z.strictObject({
   score: z.number().min(1).max(10),
@@ -28,7 +44,9 @@ Return exactly this JSON shape:
   "score": <1-10>,
   "category": <"hiring" | "pain_point" | "discussion" | "noise">,
   "reason": <one sentence explanation>
-}`;
+}
+
+Return only these three fields. Do not add any additional fields.`;
 }
 
 export async function classifyIntent(params: {
@@ -64,7 +82,7 @@ export async function classifyIntent(params: {
   // so JSON.parse doesn't throw on the backtick characters.
   const raw = textBlock.text
     .replace(/^```(?:json)?\s*/i, "") // remove opening fence with optional "json" tag
-    .replace(/\s*```$/, "")           // remove closing fence
+    .replace(/\s*```$/, "") // remove closing fence
     .trim();
   return intentSchema.parse(JSON.parse(raw));
 }

@@ -16,6 +16,7 @@
     "dev:start": "fastify start --ignore-watch=.ts$ -w -l info -P dist/app.js",
     "worker:poll": "tsx src/workers/poll-worker/index.ts",
     "worker:score": "tsx src/workers/score-worker/index.ts",
+    "eval:intent": "tsx src/evals/intent-eval.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:studio": "drizzle-kit studio"
@@ -49,6 +50,7 @@
     "@types/node": "^25.9.2",
     "@types/pg": "^8.20.0",
     "c8": "^11.0.0",
+    "csv-parse": "^5.6.0",
     "concurrently": "^9.0.0",
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",

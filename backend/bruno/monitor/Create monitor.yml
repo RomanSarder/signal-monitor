@@ -10,9 +10,9 @@ http:
     type: json
     data: |-
       {
-        "name": "Job monitor",
-        "sources": ["reddit", "hn"],
-        "keywords": ["react developer", "react senior", "frontend"],
+        "name": "Hiring signal",
+        "sources": ["hs"],
+        "keywords": ["who is hiring", "we are hiring", "hiring remote engineer", "job opening"],
         "intervalMinutes": 30
       }
   auth: inherit

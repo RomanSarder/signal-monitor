@@ -1,0 +1,133 @@
+title,snippet,matched_keywords,user_intent_category,user_intent_score
+"","First of all the May jobs report was mostly in temporary workers possibly due to the World Cup. Second as already noted the jobs are mostly in healthcare. Third job openings does not equal employment. These numbers have been diverging for a while likely due to people holding multiple jobs. Also I believe the evidence suggests the job crisis is due to WFH and not AI  <a href=""https:&#x2F;&#x2F;news.ycombinator.com&#x2F;item?id=48326721"">https:&#x2F;&#x2F;news.ycombinator.com&#x2F;item?id=48326721</a>","{""job opening""}","discussion","3
+"
+"","I run a job search site and I don&#x27;t see a crisis in terms of job openings even for SWE - but there is very clear signal that AI is deeply getting embedded in every SWE job.<p><a href=""https:&#x2F;&#x2F;corvi.careers&#x2F;blog&#x2F;global_software-engineering_jobs_june_2026&#x2F;"" rel=""nofollow"">https:&#x2F;&#x2F;corvi.careers&#x2F;blog&#x2F;global_software-engineering_jobs_...</a>","{""job opening""}","discussion","6
+"
+"","imho if you&#x27;re at a company, and they&#x27;re having layoffs... it&#x27;s generally better to be laid off, get some severance, and end up at some other company that is hiring &#x2F; growing, rather than a &quot;survivor&quot; who now has more work to do with fewer people at a company that is possibly troubled, unlikely to give any good pay increases any time soon, etc etc.<p>re #3 - no, &quot;jack of all trades&quot; tends to be a career trap &#x2F; dead end. companies hire for specific skill sets.","{""laid off""}","discussion","4
+"
+"How Inclusive Is RTO for Neurodivergent Developers?","","{developer}","discussion","3
+"
+"Why developers use LLMs to write blog posts","","{developer}","discussion","4
+"
+"Will AI Replace Software Developers?","","{developer}","discussion","3
+"
+"Being privacy-conscious comes with some downsides","I just uninstalled Pi-hole. It kind of ruined a little bit of my life.<p>I had a very time-sensitive and bureaucratic thing to do. It involved making an appointment. I&#x27;ve been trying to find an available slot multiple times a day for months. I was frustrated and desperate.<p>It&#x27;s one of those highly bureaucratic, annoying processes. The support team is horrible, and I was completely stuck.<p>After trying every combination of browsers, turning off extensions and devices I could think of, I eventually missed the deadline. Then I randomly checked the site on my phone yesterday, and it was working. There were appointment slots available (even though it didn&#x27;t help me anymore).<p>I tore my hair out trying to figure out what had happened.<p>Apparently, the site relied on some trackers, and data from those trackers was used to send the visitor&#x27;s location as part of the form request. Bad engineering, for sure. But whatever the reason, I never figured it out because I disabled browser extensions, switched browsers, and tested different devices but I was always using the pihole DNS.<p>The whole architecture of Pi-hole is &quot;set it and forget it&quot;—and I forgot it was even there.<p>The modern web relies on countless systems that interfere with your privacy. The more privacy-conscious you become, the more you end up hurting your own internet experience. Some people block JavaScript, block everything, or use Tor exclusively. I sometimes feel like those folks end up with a more miserable life at a cost of a secure one.<p>I think drawing the line at an ad blocker extension is enough. We&#x27;re cooked when it comes to privacy. The framework of the modern web is basically: consent or exit. There isn&#x27;t much room for anything else.<p>Maybe I&#x27;m stupid. Maybe I should have figured this out sooner. But I think being part of the mainstream internet probably gives you a slightly more frictionless experience than being highly privacy-conscious ever will.","{JavaScript}","discussion","4
+"
+"(There are) Only 20 JavaScript runtimes left","","{JavaScript}","discussion","4
+"
+"","Please, Kubernetes is the Chlamidya of infrastructure software. Ever hear of a large K8s migration going well? No, because it needs to be completely re-implemented under the hood for anything halfway serious. Mesos was pain in the ass to use, but was mature when K8s arrived. Nomad was cool though.<p>Dart is also complete shit: Speed of javascript with verbosity of Java. Who the hell though that was a good idea?","{JavaScript}","discussion","3
+"
+"","I’m 100% positive. I was very involved in the CSS community back then.<p>The ability to do SPAs existed, but the vast majority of people weren’t building them. The time period you’re talking about was peak rails erb templates. Which is definitely “writing html by hand”.<p>I knew plenty of people who were getting paid to convert psd
+mockups into HTML&#x2F;CSS around that time. There was a whole industry around hand written psd to HTML, which was eventually mostly outsourced to India.<p>In 2008 I made most of my money making static brochure sites for small&#x2F;mid-sized businesses. Most small businesses around that time had something similar. It was very easy back then to browse most of the web with JavaScript disabled.","{JavaScript}","discussion","4
+"
+"","It’s great we are past the “wasm is not replacing JavaScript” phase. Or “you don’t need DOM for wasm . That’s what JavaScript is for”","{JavaScript}","discussion","4
+"
+"Compiling APL to JavaScript (2014)","","{JavaScript}","discussion","4
+"
+"","There&#x27;s no reason to believe that [0] has anything to do with WASM, [1] and [2] are runtime implementation bugs, [3] is a vulnerability in a &quot;weak&quot; sandboxing library VM2 - it has nothing to do with WASM as such, and [4] is another implementation bug in an <i>experimental WASI feature</i> of that specific runtime which is gated behind a build flag.<p>------<p>[Re: 3] <a href=""https:&#x2F;&#x2F;github.com&#x2F;patriksimek&#x2F;vm2"" rel=""nofollow"">https:&#x2F;&#x2F;github.com&#x2F;patriksimek&#x2F;vm2</a><p>&gt; vm2 attempts to sandbox untrusted JavaScript code within the same Node.js process as your application. It does this through a complex network of Proxies that intercept and mediate every interaction between the sandbox and the host environment.<p>&gt; JavaScript is an extraordinarily dynamic language. Objects can be accessed through prototype chains, constructors can be reached via error objects, symbols provide protocol hooks, and async execution creates timing windows. The sheer number of ways to traverse from one object to another in JavaScript makes building an airtight in-process sandbox extremely difficult.<p>[Re: 4] <a href=""https:&#x2F;&#x2F;github.com&#x2F;search?q=repo%3Abytecodealliance%2Fwasm-micro-runtime+uvwasi+language%3AMarkdown&amp;type=code&amp;l=Markdown"" rel=""nofollow"">https:&#x2F;&#x2F;github.com&#x2F;search?q=repo%3Abytecodealliance%2Fwasm-m...</a>","{JavaScript}","discussion","3
+"
+"Show HN: Chatcode – Remote Control for Claude Code and Codex","Hey HN,<p>what I wanted to build here is a proper universal layer for persisted agentic sessions, that could be seamlessly interacted both via web and a messenger (Telegram). I really like what&#x27;s done so far and would be nice to hear some feedback from you.<p>The interesting thing is that I started to use Chatcode during its development as soon it was possible, so used this tool to build itself.<p>I know that there could be trust&#x2F;privacy concerns, because it relies on a gateway that you need to install on your machine in order to work, but:
+1. You can use it on any machine, just have some test VPS for that
+2. I really believe you will love it as soon as it fits your needs! And it&#x27;s free to start BTW.<p>Anyways, looking forward to your questions&#x2F;suggestions.","{remote}","discussion","4
+"
+"Mantyx – Remote agent runtime with support for local tools","","{remote}","discussion","4
+"
+"","Karhuno Group &#x2F; <a href=""https:&#x2F;&#x2F;DearHiringManager.io"" rel=""nofollow"">https:&#x2F;&#x2F;DearHiringManager.io</a> | Full-Stack Developer | REMOTE (US only) | Full-time<p>DearHiringManager.io is an early-stage SaaS product that helps job seekers find the real decision-maker behind a job opening.<p>A user pastes a job post URL, and the system identifies the likely future manager or team lead, plus their work email and LinkedIn profile.<p>We are looking for a full-stack developer to help us improve and grow the product.<p>You will work on:
+* The web app
+* Job post parsing and company data
+* Logic for identifying likely decision-makers
+* Contact enrichment API integrations
+* AI prompts and structured outputs
+* User flows, credits, payments, saved results, and reliability<p>Stack&#x2F;experience:
+* JavaScript or TypeScript
+* React, Next.js, or similar
+* Backend APIs and databases
+* Third-party API integrations
+* SaaS basics: auth, payments, limits
+* Nice to have: OpenAI APIs, Supabase, Vercel, Stripe, Resend, scraping&#x2F;enrichment tools, recruiting or job board products<p>This is a hands-on role on a live early-stage product with real users. You will work directly with the founder and have a lot of ownership.<p>Apply: lars@dearhiringmanager.io<p>Please send a short note about yourself and links to things you have built.","{""job opening""}","hiring","10
+"
+"","This thread is for job opening posts. You want the thread for job seekers to post in: <a href=""https:&#x2F;&#x2F;news.ycombinator.com&#x2F;item?id=48357724"">https:&#x2F;&#x2F;news.ycombinator.com&#x2F;item?id=48357724</a>","{""job opening""}","noise","1
+"
+"","<p><pre><code>    Location: Spain
+    Remote: Yes
+    Willing to relocate: No
+    Technologies: Scala, Java, Rust, JavaScript&#x2F;TypeScript, React, Ruby, AWS, Postgres
+    Résumé&#x2F;CV: https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;alexis-hernandez
+    Email: alexis+hn@alexitc.com
+
+</code></pre>
+Senior engineer with 10+ years of experience, while Scala is my strongest language, I&#x27;m a generalist and have shipped production code in Rust, Java, TypeScript, Ruby, and more. I&#x27;m keen on picking up new tools.<p>I believe in using the right tool for each task. Strong infrastructure background (AWS, cloud-native, distributed systems). US C-Corp for contracting.<p>I&#x27;ve attempted to bootstrap products myself so I understand what it takes
+beyond writing code. I take full ownership end to end, I don&#x27;t wait to be
+told what needs solving.<p>Immediate availability because my whole team was laid off recently, I&#x27;m used
+to work on US timezones. Open to senior IC or tech lead roles.<p>- GitHub: <a href=""https:&#x2F;&#x2F;github.com&#x2F;AlexITC"" rel=""nofollow"">https:&#x2F;&#x2F;github.com&#x2F;AlexITC</a><p>- Latest tech talk: <a href=""https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=SJxEXAkxD3I"" rel=""nofollow"">https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=SJxEXAkxD3I</a><p>- Testimonials: <a href=""https:&#x2F;&#x2F;alexitc.com&#x2F;testimonials&#x2F;"" rel=""nofollow"">https:&#x2F;&#x2F;alexitc.com&#x2F;testimonials&#x2F;</a>","{""laid off""}","noise","1
+"
+"","We are hiring full-stack and applied AI engineers, as well as a UI designer, for in-person roles in NYC.<p>Our product helps everyone make better legal decisions by better understanding the law. About one-third of important U.S. law is not accessible via ChatGPT or Claude. Much AI-generated legal analysis is wrong. We are building one of the largest collections of U.S. law in existence and using AI to make it make sense.<p>We are a seed-stage start-up, still in stealth (but already with an acquisition offer!), backed by tier-1 VCs and many of the most prominent experts in legal technology. We are working with several of the best law firms in the world. We have strong customer demand and need people to help us fill it. We are committed to improving access to justice.<p>We are hiring a small team of extremely talented, motivated, intense, and interesting people to solve the most difficult and important problem in legal tech: high quality answers to legal questions. Expect market-leading compensation, including meaningful equity ownership. Please send your resume to contact[at]ashmere.com.","{""we are hiring""}","hiring","10
+"
+"","Job ads should be posted here: <a href=""https:&#x2F;&#x2F;news.ycombinator.com&#x2F;item?id=48357725"">https:&#x2F;&#x2F;news.ycombinator.com&#x2F;item?id=48357725</a><p>&gt; Please don&#x27;t post job ads as submissions to HN. &#x2F; A regular &quot;Who Is Hiring?&quot; thread appears (monthly)<p><a href=""https:&#x2F;&#x2F;news.ycombinator.com&#x2F;newsfaq.html"">https:&#x2F;&#x2F;news.ycombinator.com&#x2F;newsfaq.html</a>","{""who is hiring""}","noise","1
+"
+"Remote friendly jobs at AI native companies","","{remote}","hiring","7
+"
+"","It&#x27;s not mentioned in the title, but the payload itself comes with a pretty long wall-of-text comments about biological weapon design and nuclear weapon components. An interesting attempt to make LLMs refuse to touch the payload.<p>Quote:<p>&gt; The _index.js payload begins with a large JavaScript block comment containing
+fake system instructions and policy-triggering content. Because it is inside a comment, it does not affect JavaScript execution. The runtime skips it. The
+eal malware begins after the comment with a try{eval(...)} wrapper around a
+large character-code array and a ROT-style substitution function.<p>&gt; This header appears designed for AI-mediated analysis, not for Node, Bun, or
+Python. It attempts to derail scanners or analyst copilots that feed the
+beginning of a file to a language model without clearly isolating the content
+as untrusted data. In weak pipelines, this can cause refusal behavior, prompt
+confusion, context pollution, or premature classification before the scanner
+reaches the actual malware.<p>&gt; This is not a magical bypass against static detection. YARA rules, entropy
+checks, AST parsing, string extraction, deobfuscation, and behavioral rules
+still work. But it is a practical anti-analysis trick against naive LLM-first
+triage systems.<p>And I tried to get several hosted models to read the `_index.js` part of the payload through OpenRouter. OpenAI and Anthropic models refused to do anything. Kimi K2.6, GLM 5.1, and Minimax M3 didn&#x27;t complain though.<p>Edit: fix formatting","{JavaScript}","noise","2
+"
+"","While purists will disagree, a little bit of javascript is fine. Having said that, you are talking about a personal website. Most companies will have a backend of some sort anyway.<p>Also, here is a little secret. If you want something that is future proof, try something that has been around for decades and still runs large parts of the internet. People will scoff at this, but PHP is actually really neat for personal websites and has been for decades.<p>A while ago I also found myself looking at static site generators, workflows from github to my host, etc. Eventually I realized I don&#x27;t update things nearly enough, don&#x27;t blog, etc.<p>For similar reasons as you I didn&#x27;t want to go completely static as that is just too much hassle when doing multiple pages. So I decided to utilize that good old lamp stack to basically do something like this.<p><pre><code>    &lt;?php
+    $pages = json_decode(file_get_contents(&#x27;pages.json&#x27;), true);
+    $page = $_GET[&#x27;page&#x27;] ?? &#x27;home&#x27;;
+    if (!isset($pages[$page])) {
+        $page = &#x27;home&#x27;;
+    }
+    $pageData = $pages[$page];
+    $contentFile = basename($pageData[&#x27;file&#x27;]);
+    $contentFilePath = &quot;content&#x2F;{$contentFile}&quot;;
+    ?&gt;
+    &lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;&lt;?= htmlspecialchars($pageData[&#x27;title&#x27;]) ?&gt;&lt;&#x2F;title&gt;
+    &lt;&#x2F;head&gt;
+    &lt;body&gt;
+        &lt;main&gt;
+        &lt;?php include $contentFilePath; ?&gt;
+        &lt;&#x2F;main&gt;
+    &lt;&#x2F;body&gt;
+    &lt;&#x2F;html&gt;
+
+</code></pre>
+Slightly more, but the base principle is the same. Just 10 lines of php code, and now I can just add pages by uploading their contents and adding them to the json file for whitelisting. For your use case it would be trivial to add a menu based on the json file and I&#x27;d be confident that it will still work in 10 years with minimal adjustments.<p>As a bonus I also rediscovered PHP in itself works really well as a templating language (as you can see) so no need for extra stuff like handlebars. As an extra extra bonus, I can just go to any shared webhosting party and get it running with no issue at all.<p>I am not saying you&#x27;d need to go down this road. But I just want to illustrate how stupidly simple a website can be with &quot;old&quot; basic technologies even if you want some form of backend.","{JavaScript}","noise","1
+"
+"","I think &#x27;do not spark joy&#x27; is the perfect description. Does it significantly ruin my day? No. Do I just feel a little bit less content with the world when my clean diff has an extra noop deletion and insertion? Yes.<p>Interesting too that javascript (but not json) seems to allow it. And a comment on that page highlights javascript&#x27;s _sparse arrays_ which I&#x27;d never heard of [0]<p>[0] <a href=""https:&#x2F;&#x2F;dev.to&#x2F;damil&#x2F;beautiful-perl-feature-trailing-commas-4504"" rel=""nofollow"">https:&#x2F;&#x2F;dev.to&#x2F;damil&#x2F;beautiful-perl-feature-trailing-commas-...</a> ctrl-f for &#x27;sparse&#x27;","{JavaScript}","noise","1
+"
+"","Popcorn for watching all those webapps being penetrated.<p>Long live static websites without any Javascript.","{JavaScript}","noise","1
+"
+"Seeking a Remote Collaborator","Hello everyone
+I am here to look for a remote collaborator from LATAM region
+I spent my most career as a software engineer and now I am looking for a collaborator to keep growing my professional life as a Senior software engineer
+I am gonna take an experience working in LATAM but it is so hard to move there.
+If a collaborator helps me then I can take it.
+Of course there will be some benefits for my collaborator
+Your work will be non technical, simple and easy for you
+And you will spend up to 2 hours a week in this collaboration, this means the collaboration wouldn&#x27;t corrupt your daily work and life.
+I prefer a male collaborator who is between 27 and 40
+If you are interested in, then please DM to me through this platform.
+For the faster communication, I am gonna put my tlg ID. @SilverCraneK
+Best Regards.","{remote}","noise","1
+"
+"RemotePower – self-hosted remote power management","","{remote}","noise","1
+"
+"Boeing 787 Dreamliner Loses Door at Remote Pacific Airport, Puzzling Engineers","","{remote}","noise","1
+"
+"Wearable broadband auscultation patch for remote healthcare monitoring","","{remote}","noise","1
+"
+"Apple bets cheaper AI will woo small developers","","{developer}","noise ","1
+"
+"","Please please please bring it to the browser. I&#x27;m so done with the terrible ergonomics of everything at the was bounary having to pretend it&#x27;s JavaScript","{JavaScript}","pain_point","6
+"
