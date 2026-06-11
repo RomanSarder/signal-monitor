@@ -27,7 +27,7 @@ export default function SignUp() {
       </div>
       <Card className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         {signUp.error && (
-          <div className="mb-4 rounded-tremor-default bg-red-50 px-3 py-2 text-tremor-default text-red-700">
+          <div role="alert" className="mb-4 rounded-tremor-default bg-red-50 px-3 py-2 text-tremor-default text-red-700">
             {signUp.error.message}
           </div>
         )}

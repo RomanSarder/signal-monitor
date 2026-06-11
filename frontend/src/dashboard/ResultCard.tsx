@@ -90,13 +90,13 @@ export default function ResultCard({ result }: { result: Result }) {
       </p>
 
       {result.matchedKeywords.length > 0 && (
-        <div className="flex flex-wrap gap-1">
+        <ul className="flex flex-wrap gap-1">
           {result.matchedKeywords.map(kw => (
-            <span key={kw} className="bg-zinc-100 text-zinc-600 rounded px-1.5 py-0.5 text-xs">
+            <li key={kw} className="bg-zinc-100 text-zinc-600 rounded px-1.5 py-0.5 text-xs">
               {kw}
-            </span>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
 
       {result.intentReason && (
@@ -111,21 +111,21 @@ export default function ResultCard({ result }: { result: Result }) {
           onClick={() => patch.mutate({ id: result.id, body: { isRead: true } })}
           className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded text-xs text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 border border-transparent hover:border-zinc-200"
         >
-          <ExternalLink size={13} />
+          <ExternalLink size={13} aria-hidden="true" />
           Open
         </a>
         <button
           onClick={() => patch.mutate({ id: result.id, body: { isSaved: !result.isSaved } })}
           className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded text-xs border border-transparent hover:border-zinc-200 ${result.isSaved ? "text-indigo-600 hover:text-indigo-700" : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50"}`}
         >
-          <Bookmark size={13} />
+          <Bookmark size={13} aria-hidden="true" />
           Save
         </button>
         <button
           onClick={() => del.mutate(result.id)}
           className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded text-xs text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 border border-transparent hover:border-zinc-200"
         >
-          <X size={13} />
+          <X size={13} aria-hidden="true" />
           Dismiss
         </button>
       </div>

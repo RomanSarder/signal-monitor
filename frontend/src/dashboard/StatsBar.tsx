@@ -19,19 +19,19 @@ export default function StatsBar({ data, isLoading }: Props) {
   );
 
   return (
-    <div className="border-b border-zinc-200 bg-white">
-      <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap gap-x-6 gap-y-2">
+    <section aria-label="Result statistics" className="border-b border-zinc-200 bg-white">
+      <dl className="w-full max-w-3xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap gap-x-6 gap-y-2">
         {STATS.map(({ key, label, Icon, color }) => (
           <div key={key} className="flex items-center gap-1.5">
-            <Icon size={16} strokeWidth={1.5} className={color} />
-            <span className="text-sm text-zinc-500">{label}</span>
+            <Icon size={16} strokeWidth={1.5} className={color} aria-hidden="true" />
+            <dt className="text-sm text-zinc-500">{label}</dt>
             {isLoading
-              ? <span className="h-4 w-7 bg-zinc-100 rounded animate-pulse inline-block" />
-              : <span className="text-sm font-semibold text-zinc-900">{counts[key] ?? 0}</span>
+              ? <dd className="h-4 w-7 bg-zinc-100 rounded animate-pulse inline-block" />
+              : <dd className="text-sm font-semibold text-zinc-900">{counts[key] ?? 0}</dd>
             }
           </div>
         ))}
-      </div>
-    </div>
+      </dl>
+    </section>
   );
 }

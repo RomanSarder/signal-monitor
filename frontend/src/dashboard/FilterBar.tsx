@@ -48,7 +48,7 @@ export default function FilterBar({
     filters.savedOnly;
 
   return (
-    <div className="bg-white border-b border-zinc-200 px-4 sm:px-6 py-3">
+    <section aria-label="Filters" className="bg-white border-b border-zinc-200 px-4 sm:px-6 py-3">
       <div className="flex flex-wrap gap-3 items-end">
         <div className="min-w-[160px] flex-1">
           <label className="block text-xs text-zinc-500 mb-1">Category</label>
@@ -66,10 +66,11 @@ export default function FilterBar({
         </div>
 
         <div className="min-w-[160px] flex-1">
-          <label className="block text-xs text-zinc-500 mb-1">
+          <label htmlFor="filter-min-score" className="block text-xs text-zinc-500 mb-1">
             Min score: <span className="font-medium text-zinc-900">{filters.minScore}</span>
           </label>
           <input
+            id="filter-min-score"
             type="range"
             min={1}
             max={10}
@@ -107,8 +108,9 @@ export default function FilterBar({
         </div>
 
         <div className="min-w-[140px] flex-1">
-          <label className="block text-xs text-zinc-500 mb-1">From</label>
+          <label htmlFor="filter-from" className="block text-xs text-zinc-500 mb-1">From</label>
           <input
+            id="filter-from"
             type="date"
             value={filters.from}
             onChange={e => onFromChange(e.target.value)}
@@ -117,8 +119,9 @@ export default function FilterBar({
         </div>
 
         <div className="min-w-[140px] flex-1">
-          <label className="block text-xs text-zinc-500 mb-1">To</label>
+          <label htmlFor="filter-to" className="block text-xs text-zinc-500 mb-1">To</label>
           <input
+            id="filter-to"
             type="date"
             value={filters.to}
             onChange={e => onToChange(e.target.value)}
@@ -146,6 +149,6 @@ export default function FilterBar({
           Clear filters
         </button>
       </div>
-    </div>
+    </section>
   );
 }

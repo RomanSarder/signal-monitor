@@ -22,7 +22,7 @@ export default function Dashboard() {
     if (monitors.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center flex-1">
-          <Radio size={48} strokeWidth={1.5} className="text-zinc-300" />
+          <Radio size={48} strokeWidth={1.5} className="text-zinc-300" aria-hidden="true" />
           <h1 className="mt-4 text-xl font-semibold text-zinc-900">No results yet</h1>
           <p className="mt-1 text-sm text-zinc-500">Create a monitor to get started</p>
           <a

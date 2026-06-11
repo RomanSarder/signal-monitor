@@ -44,6 +44,8 @@ src/
 - Always handle three states: loading skeleton, error with retry, empty state
 
 ## Testing Requirements
+After any UI change, run `/accessibility` to check semantic HTML and ARIA correctness.
+
 After any UI change, run Playwright tests across three viewports:
 - Desktop: 1280×800
 - Tablet: devices['iPad Mini']  
