@@ -1,7 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Monitor, PatchResultBody, ResultsListResponse } from "@signal-monitor/shared";
 import { apiFetch } from "../api";
 import type { FilterState } from "./useFilters";
+
+const PAGE_SIZE = 25;
 
 export const monitorsQueryKey = ["monitors"] as const;
 
@@ -14,11 +16,12 @@ export function useMonitors() {
 
 export const resultsQueryKey = (f: FilterState) => ["results", f] as const;
 
-export function useResults(filters: FilterState) {
-  return useQuery<ResultsListResponse>({
+export function useInfiniteResults(filters: FilterState) {
+  return useInfiniteQuery<ResultsListResponse>({
     queryKey: resultsQueryKey(filters),
-    queryFn: () => {
-      const p = new URLSearchParams({ limit: "25", offset: "0" });
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) => {
+      const p = new URLSearchParams({ limit: String(PAGE_SIZE), offset: String(pageParam) });
       if (filters.categories.length === 1) p.set("category", filters.categories[0]);
       if (filters.minScore > 1) p.set("minScore", String(filters.minScore));
       if (filters.monitorId) p.set("monitorId", filters.monitorId);
@@ -26,6 +29,10 @@ export function useResults(filters: FilterState) {
       if (filters.to) p.set("to", filters.to);
       p.set("sort", filters.sort);
       return apiFetch(`/results?${p}`);
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.items.length < PAGE_SIZE) return undefined;
+      return allPages.reduce((sum, p) => sum + p.items.length, 0);
     },
   });
 }

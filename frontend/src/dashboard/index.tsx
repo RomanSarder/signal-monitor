@@ -1,6 +1,6 @@
 import { Radio } from "lucide-react";
 import { useMe, useSignOut } from "../auth/queries";
-import { useMonitors, useResults } from "./queries";
+import { useMonitors, useInfiniteResults } from "./queries";
 import { useFilters } from "./useFilters";
 import FilterBar from "./FilterBar";
 import ResultCard from "./ResultCard";
@@ -13,7 +13,10 @@ export default function Dashboard() {
   const { data: monitors = [] } = useMonitors();
   const { filters, setCategories, setMinScore, setMonitorId, setFrom, setTo, setSort, clearFilters } =
     useFilters();
-  const { data, isLoading, isError, refetch } = useResults(filters);
+  const { data, isLoading, isError, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useInfiniteResults(filters);
+  const allItems = data?.pages.flatMap(p => p.items) ?? [];
+  const total = data?.pages[0]?.total ?? 0;
 
   function renderFeed() {
     if (monitors.length === 0) {
@@ -56,16 +59,34 @@ export default function Dashboard() {
       );
     }
 
-    if (!data || data.items.length === 0) {
+    if (total === 0) {
       return <EmptyState onClear={clearFilters} />;
     }
 
     return (
-      <ul className="flex flex-col gap-4 w-full max-w-3xl mx-auto px-4 sm:px-6 py-6">
-        {data.items.map(result => (
-          <ResultCard key={result.id} result={result} />
-        ))}
-      </ul>
+      <>
+        <ul className="flex flex-col gap-4 w-full max-w-3xl mx-auto px-4 sm:px-6 py-6">
+          {allItems.map(result => (
+            <ResultCard key={result.id} result={result} />
+          ))}
+        </ul>
+        {isFetchingNextPage && (
+          <ul className="flex flex-col gap-4 w-full max-w-3xl mx-auto px-4 sm:px-6 pb-4">
+            <ResultSkeleton />
+            <ResultSkeleton />
+          </ul>
+        )}
+        {hasNextPage && !isFetchingNextPage && (
+          <div className="flex justify-center pb-8">
+            <button
+              onClick={() => fetchNextPage()}
+              className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium"
+            >
+              Load more
+            </button>
+          </div>
+        )}
+      </>
     );
   }
 
