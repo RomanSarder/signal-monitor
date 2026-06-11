@@ -44,7 +44,7 @@ describe("createPollProcessor", () => {
     const db = mockDbMulti([]);
     const hnAdapter = { fetchKeyword: vi.fn() };
     const scoreQueue = { add: vi.fn() };
-    const redis = { eval: vi.fn() };
+    const redis = { set: vi.fn() };
 
     await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID }));
 
@@ -56,7 +56,7 @@ describe("createPollProcessor", () => {
     const db = mockDbMulti([{ ...monitorRow, status: "paused" }]);
     const hnAdapter = { fetchKeyword: vi.fn() };
     const scoreQueue = { add: vi.fn() };
-    const redis = { eval: vi.fn() };
+    const redis = { set: vi.fn() };
 
     await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID }));
 
@@ -67,21 +67,40 @@ describe("createPollProcessor", () => {
   it("inserts result and enqueues score job for a new hit", async () => {
     // DB calls: select monitor, insert jobRun, insert result, update monitors, update jobRuns, insert jobRunSources
     const db = mockDbMulti([monitorRow], [jobRunRow], [{ id: RESULT_ID }], [], [], []);
-    const redis = { eval: vi.fn().mockResolvedValue(0) }; // 0 = not a duplicate
+    const redis = { set: vi.fn().mockResolvedValue("OK") }; // "OK" = not a duplicate (key was set)
     const scoreQueue = { add: vi.fn().mockResolvedValue(undefined) };
     const hnAdapter = { fetchKeyword: vi.fn().mockResolvedValue([hitRow]) };
 
     await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID }));
 
     expect(hnAdapter.fetchKeyword).toHaveBeenCalledWith("signal", expect.any(Number));
+    expect(redis.set).toHaveBeenCalledWith(
+      `dedup:${MONITOR_ID}:hn:${hitRow.source_id}`,
+      1,
+      "EX",
+      30 * 24 * 60 * 60,
+      "NX",
+    );
     expect(scoreQueue.add).toHaveBeenCalledOnce();
     expect(scoreQueue.add).toHaveBeenCalledWith("score-request", { resultId: RESULT_ID });
   });
 
-  it("skips insert and score job for a duplicate hit", async () => {
+  it("skips insert and score job for a redis-duplicate hit", async () => {
     // DB calls: select monitor, insert jobRun, update monitors, update jobRuns, insert jobRunSources
     const db = mockDbMulti([monitorRow], [jobRunRow], [], [], []);
-    const redis = { eval: vi.fn().mockResolvedValue(1) }; // 1 = duplicate
+    const redis = { set: vi.fn().mockResolvedValue(null) }; // null = duplicate (key already existed)
+    const scoreQueue = { add: vi.fn() };
+    const hnAdapter = { fetchKeyword: vi.fn().mockResolvedValue([hitRow]) };
+
+    await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID }));
+
+    expect(scoreQueue.add).not.toHaveBeenCalled();
+  });
+
+  it("skips score job when result already exists in db", async () => {
+    // DB calls: select monitor, insert jobRun, insert result (conflict → empty), update monitors, update jobRuns, insert jobRunSources
+    const db = mockDbMulti([monitorRow], [jobRunRow], [], [], [], []);
+    const redis = { set: vi.fn().mockResolvedValue("OK") };
     const scoreQueue = { add: vi.fn() };
     const hnAdapter = { fetchKeyword: vi.fn().mockResolvedValue([hitRow]) };
 
@@ -93,7 +112,7 @@ describe("createPollProcessor", () => {
   it("completes with errors when a keyword fetch fails", async () => {
     // DB calls: select monitor, insert jobRun, update monitors, update jobRuns, insert jobRunSources
     const db = mockDbMulti([monitorRow], [jobRunRow], [], [], []);
-    const redis = { eval: vi.fn() };
+    const redis = { set: vi.fn() };
     const scoreQueue = { add: vi.fn() };
     const hnAdapter = { fetchKeyword: vi.fn().mockRejectedValue(new Error("fetch failed")) };
 
@@ -107,7 +126,7 @@ describe("createPollProcessor", () => {
   it("marks job run as failed when an outer db operation throws", async () => {
     // DB calls: select monitor, insert jobRun, update monitors (throws), update jobRuns (failed)
     const db = mockDbMulti([monitorRow], [jobRunRow], new Error("db error"), []);
-    const redis = { eval: vi.fn() };
+    const redis = { set: vi.fn() };
     const scoreQueue = { add: vi.fn() };
     const hnAdapter = { fetchKeyword: vi.fn().mockResolvedValue([]) };
 

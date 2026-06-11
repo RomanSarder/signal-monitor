@@ -12,12 +12,19 @@ const log = logger.child({ worker: "poll-worker" });
 
 export interface PollProcessorDeps {
   db: any;
-  redis: { eval: (...args: any[]) => Promise<unknown> };
-  scoreQueue: { add: (name: string, data: { resultId: string }) => Promise<any> };
+  redis: { set: (key: string, value: number, mode: "EX", duration: number, flag: "NX") => Promise<"OK" | null> };
+  scoreQueue: {
+    add: (name: string, data: { resultId: string }) => Promise<any>;
+  };
   hnAdapter: SourceAdapter;
 }
 
-export function createPollProcessor({ db, redis, scoreQueue, hnAdapter }: PollProcessorDeps) {
+export function createPollProcessor({
+  db,
+  redis,
+  scoreQueue,
+  hnAdapter,
+}: PollProcessorDeps) {
   return async (job: Job<PollQueueJob>) => {
     const data = job.data;
 
@@ -27,7 +34,10 @@ export function createPollProcessor({ db, redis, scoreQueue, hnAdapter }: PollPr
       .where(eq(monitors.id, data.monitorId));
 
     if (!monitor || monitor.status === "paused") {
-      log.info({ monitorId: data.monitorId }, "monitor not found or paused, skipping");
+      log.info(
+        { monitorId: data.monitorId },
+        "monitor not found or paused, skipping",
+      );
       return;
     }
 
@@ -41,7 +51,10 @@ export function createPollProcessor({ db, redis, scoreQueue, hnAdapter }: PollPr
       })
       .returning();
 
-    log.info({ monitorId: monitor.id, jobRunId: jobRun.id }, "poll job started");
+    log.info(
+      { monitorId: monitor.id, jobRunId: jobRun.id },
+      "poll job started",
+    );
 
     try {
       for (const source of ["hn"]) {
@@ -49,7 +62,10 @@ export function createPollProcessor({ db, redis, scoreQueue, hnAdapter }: PollPr
         let hitsCount = 0;
         const failedKeywords: string[] = [];
 
-        log.info({ monitorId: monitor.id, keywords: monitor.keywords }, "starting keyword fetch");
+        log.info(
+          { monitorId: monitor.id, keywords: monitor.keywords },
+          "starting keyword fetch",
+        );
 
         for (const keyword of monitor.keywords) {
           try {
@@ -60,24 +76,12 @@ export function createPollProcessor({ db, redis, scoreQueue, hnAdapter }: PollPr
             log.info({ hits }, "hits");
             hitsCount += hits.length;
             for (const hit of hits) {
-              const dedupKey = `dedup:${monitor.id}:hn`;
-              const dedup = (await redis.eval(
-                `local seen = redis.call('SISMEMBER', KEYS[1], ARGV[1])
-            if seen == 1 then
-              return 1
-            end
-            redis.call('SADD', KEYS[1], ARGV[1])
-            redis.call('EXPIRE', KEYS[1], ARGV[2])
-            return 0`,
-                1,
-                dedupKey,
-                hit.source_id,
-                30 * 24 * 60 * 60,
-              )) as 0 | 1;
+              const dedupKey = `dedup:${monitor.id}:${source}:${hit.source_id}`;
+              const dedup = await redis.set(dedupKey, 1, "EX", 30 * 24 * 60 * 60, "NX");
 
               log.info({ dedup }, "Dedup result");
 
-              if (dedup === 1) {
+              if (dedup === null) {
                 continue;
               } else {
                 const [inserted] = await db
@@ -93,9 +97,14 @@ export function createPollProcessor({ db, redis, scoreQueue, hnAdapter }: PollPr
                     publishedAt: hit.published_at,
                     matchedKeywords: [keyword],
                   })
+                  .onConflictDoNothing()
                   .returning({ id: results.id });
 
-                await scoreQueue.add("score-request", { resultId: inserted.id });
+                if (inserted) {
+                  await scoreQueue.add("score-request", {
+                    resultId: inserted.id,
+                  });
+                }
               }
             }
           } catch (e: any) {
@@ -115,7 +124,12 @@ export function createPollProcessor({ db, redis, scoreQueue, hnAdapter }: PollPr
 
         const finalStatus = hasErrors ? "completed_with_errors" : "completed";
         log.info(
-          { monitorId: monitor.id, jobRunId: jobRun.id, status: finalStatus, hitsCount },
+          {
+            monitorId: monitor.id,
+            jobRunId: jobRun.id,
+            status: finalStatus,
+            hitsCount,
+          },
           "poll job finished",
         );
 

@@ -9,6 +9,7 @@ export function mockDb(result: unknown) {
     "select", "insert", "update", "delete",
     "from", "where", "values", "set", "orderBy",
     "returning", "onConflictDoNothing",
+    "groupBy", "limit", "offset",
   ];
   for (const m of methods) {
     chain[m] = () => chain;
@@ -27,6 +28,7 @@ export function mockDbMulti(...results: unknown[]) {
     "select", "insert", "update", "delete",
     "from", "where", "values", "set", "orderBy",
     "returning", "onConflictDoNothing",
+    "groupBy", "limit", "offset",
   ].forEach((m) => {
     chain[m] = () => chain;
   });

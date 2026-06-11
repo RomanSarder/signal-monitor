@@ -1,6 +1,65 @@
 import { InferSelectModel } from "drizzle-orm";
 import { results } from "../db/schema";
 
+export interface ResultParams {
+  id: string;
+}
+
+export const resultParamsSchema = {
+  type: "object",
+  required: ["id"],
+  properties: { id: { type: "string", format: "uuid" } },
+} as const;
+
+export interface PatchResultBody {
+  isRead?: boolean;
+  isSaved?: boolean;
+}
+
+export const patchResultBodySchema = {
+  type: "object",
+  properties: {
+    isRead: { type: "boolean" },
+    isSaved: { type: "boolean" },
+  },
+} as const;
+
+export const resultStatsSchema = {
+  type: "object",
+  properties: {
+    byCategory: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          category: { type: "string" },
+          count: { type: "integer" },
+        },
+      },
+    },
+    bySource: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          source: { type: "string" },
+          count: { type: "integer" },
+        },
+      },
+    },
+    byDay: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          date: { type: "string" },
+          count: { type: "integer" },
+        },
+      },
+    },
+  },
+} as const;
+
 export interface GetResultsListQuery {
   limit: number;
   offset: number;
