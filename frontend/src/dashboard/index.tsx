@@ -1,6 +1,6 @@
 import { Radio } from "lucide-react";
-import { useMe, useSignOut } from "../auth/queries";
 import { useMonitors, useInfiniteResults, useStats } from "./queries";
+import TopNav from "../TopNav";
 import { useFilters } from "./useFilters";
 import FilterBar from "./FilterBar";
 import StatsBar from "./StatsBar";
@@ -9,8 +9,6 @@ import ResultSkeleton from "./ResultSkeleton";
 import EmptyState from "./EmptyState";
 
 export default function Dashboard() {
-  const { data: me } = useMe();
-  const signOut = useSignOut();
   const { data: monitors = [] } = useMonitors();
   const { filters, setCategories, setMinScore, setMonitorId, setFrom, setTo, setSort, setSavedOnly, clearFilters } =
     useFilters();
@@ -94,19 +92,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen flex flex-col bg-zinc-50">
-      <nav className="h-14 flex items-center justify-between gap-4 px-4 sm:px-6 bg-white border-b border-zinc-200">
-        <span className="font-semibold text-zinc-900 shrink-0">Signal Monitor</span>
-        <div className="flex items-center gap-3 min-w-0">
-          {me?.email && <span className="text-sm text-zinc-500 truncate min-w-0">{me.email}</span>}
-          <button
-            onClick={() => signOut.mutate(undefined, { onSuccess: () => window.location.assign("/sign-in") })}
-            disabled={signOut.isPending}
-            className="shrink-0 text-sm text-zinc-500 hover:text-zinc-900 disabled:opacity-50"
-          >
-            Sign out
-          </button>
-        </div>
-      </nav>
+      <TopNav />
 
       <FilterBar
         filters={filters}

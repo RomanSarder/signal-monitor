@@ -7,7 +7,7 @@ export class ApiError extends Error {
 export async function apiFetch(path: string, options?: RequestInit) {
   const res = await fetch(`/api${path}`, {
     ...options,
-    headers: { "Content-Type": "application/json", ...options?.headers },
+    headers: { ...(options?.body != null ? { "Content-Type": "application/json" } : {}), ...options?.headers },
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));

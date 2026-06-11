@@ -2,6 +2,8 @@ import { createRouter, createRoute, createRootRoute, redirect } from "@tanstack/
 import SignIn from "./auth/sign-in";
 import SignUp from "./auth/sign-up";
 import Dashboard from "./dashboard/index";
+import Monitors from "./monitors/index";
+import { apiFetch, ApiError } from "./api";
 
 const rootRoute = createRootRoute();
 
@@ -25,13 +27,32 @@ const signUpRoute = createRoute({
   component: SignUp,
 });
 
+async function requireAuth() {
+  try {
+    await apiFetch("/auth/me");
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 401) {
+      throw redirect({ to: "/sign-in" });
+    }
+    throw e;
+  }
+}
+
 const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/dashboard",
+  beforeLoad: requireAuth,
   component: Dashboard,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, signInRoute, signUpRoute, dashboardRoute]);
+const monitorsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/monitors",
+  beforeLoad: requireAuth,
+  component: Monitors,
+});
+
+const routeTree = rootRoute.addChildren([indexRoute, signInRoute, signUpRoute, dashboardRoute, monitorsRoute]);
 
 export const router = createRouter({ routeTree });
 
