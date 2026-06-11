@@ -1,9 +1,15 @@
 import { Radio } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useMe } from "../auth/queries";
+import { useMonitors } from "./queries";
+import { useFilters } from "./useFilters";
+import FilterBar from "./FilterBar";
 
 export default function Dashboard() {
   const { data: me } = useMe();
+  const { data: monitors = [] } = useMonitors();
+  const { filters, setCategories, setMinScore, setMonitorId, setFrom, setTo, clearFilters } =
+    useFilters();
 
   return (
     <div className="min-h-screen flex flex-col bg-zinc-50">
@@ -11,6 +17,17 @@ export default function Dashboard() {
         <span className="font-semibold text-zinc-900 shrink-0">Signal Monitor</span>
         {me?.email && <span className="text-sm text-zinc-500 truncate min-w-0">{me.email}</span>}
       </nav>
+
+      <FilterBar
+        filters={filters}
+        monitors={monitors}
+        onCategoriesChange={setCategories}
+        onMinScoreChange={setMinScore}
+        onMonitorIdChange={setMonitorId}
+        onFromChange={setFrom}
+        onToChange={setTo}
+        onClear={clearFilters}
+      />
 
       <main className="flex-1 flex flex-col items-center justify-center">
         <Radio size={48} strokeWidth={1.5} className="text-zinc-300" />
