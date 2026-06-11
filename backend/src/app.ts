@@ -9,6 +9,7 @@ import auth from "./auth";
 import { monitor } from "./monitor";
 import queue from "./queue";
 import { result } from "./result";
+import { jobRun } from "./job-run";
 
 const app: FastifyPluginAsync = async (fastify): Promise<void> => {
   await fastify.register(env);
@@ -21,6 +22,7 @@ const app: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.register(auth);
   fastify.register(monitor);
   fastify.register(result);
+  fastify.register(jobRun);
   fastify.get("/health", async () => ({ status: "ok" }));
 };
 

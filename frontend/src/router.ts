@@ -4,6 +4,7 @@ import SignUp from "./auth/sign-up";
 import Dashboard from "./dashboard/index";
 import Monitors from "./monitors/index";
 import MonitorsNew from "./monitors/new";
+import MonitorDetail from "./monitors/detail";
 import { apiFetch, ApiError } from "./api";
 
 const rootRoute = createRootRoute();
@@ -60,7 +61,14 @@ const monitorsNewRoute = createRoute({
   component: MonitorsNew,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, signInRoute, signUpRoute, dashboardRoute, monitorsNewRoute, monitorsRoute]);
+const monitorDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/monitors/$id",
+  beforeLoad: requireAuth,
+  component: MonitorDetail,
+});
+
+const routeTree = rootRoute.addChildren([indexRoute, signInRoute, signUpRoute, dashboardRoute, monitorsNewRoute, monitorDetailRoute, monitorsRoute]);
 
 export const router = createRouter({ routeTree });
 

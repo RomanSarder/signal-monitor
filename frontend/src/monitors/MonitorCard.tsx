@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { PauseCircle, PencilLine, PlayCircle, RefreshCw } from "lucide-react";
 import type { Monitor } from "@signal-monitor/shared";
 import { usePauseMonitor, useResumeMonitor, useRunMonitor } from "./queries";
@@ -126,10 +127,10 @@ export default function MonitorCard({ monitor }: { monitor: Monitor }) {
           Run now
         </button>
 
-        <a href={`/monitors/${monitor.id}`} className={actionBtn}>
+        <Link to="/monitors/$id" params={{ id: monitor.id }} className={actionBtn}>
           <PencilLine size={14} aria-hidden="true" />
           Edit
-        </a>
+        </Link>
       </div>
     </li>
   );
