@@ -156,6 +156,8 @@ export function createPollProcessor({
         .update(jobRuns)
         .set({ status: "failed", finishedAt: new Date() })
         .where(eq(jobRuns.id, jobRun.id));
+
+      throw e
     }
   };
 }
