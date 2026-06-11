@@ -11,15 +11,37 @@ import {
 } from "./schema";
 import { eq } from "drizzle-orm";
 import { and } from "drizzle-orm";
+import { getTableColumns } from "drizzle-orm";
+import { exists } from "drizzle-orm";
+import { jobRuns } from "../db/schema";
+import { sql } from "drizzle-orm";
+import { gt } from "drizzle-orm";
 
 export const monitor: FastifyPluginAsync = async (fastify) => {
   fastify.addHook("onRequest", fastify.authenticate);
+
+  // select() in Drizzle always requires you to name your columns,
+  // even when you don't care about them"
+  const isRunning = exists(
+    fastify.db.select({ one: sql`1` }).from(jobRuns).where(
+      and(
+        eq(jobRuns.monitorId, monitors.id),
+        eq(jobRuns.status, "started"),
+        // Job running longer than its own interval is almost certainly stuck.
+        // 5 acts as a generous floor value here to handle extremely short intervals
+        gt(jobRuns.startedAt, sql`now() - GREATEST(${monitors.intervalMinutes}, 5) * interval '1 minute'`)
+      )
+    )
+  )
 
   fastify.register(
     async (fastify) => {
       fastify.get("", {}, async (request) => {
         return fastify.db
-          .select()
+          .select({
+            ...getTableColumns(monitors),
+            isRunning,
+          })
           .from(monitors)
           .where(eq(monitors.userId, request.user.id))
           .orderBy(desc(monitors.createdAt));
@@ -49,7 +71,10 @@ export const monitor: FastifyPluginAsync = async (fastify) => {
             { name: "poll-request", data: { monitorId: newMonitor.id } },
           );
 
-          return newMonitor;
+          return {
+            ...newMonitor,
+            isRunning: false,
+          };
         },
       );
 
@@ -62,7 +87,10 @@ export const monitor: FastifyPluginAsync = async (fastify) => {
         },
         async (request, reply) => {
           const [monitor] = await fastify.db
-            .select()
+            .select({
+              ...getTableColumns(monitors),
+              isRunning,
+            })
             .from(monitors)
             .where(
               and(
@@ -106,7 +134,12 @@ export const monitor: FastifyPluginAsync = async (fastify) => {
             return reply.notFound("Monitor not found");
           }
 
-          return updated;
+          return {
+            ...updated,
+            // Technically wrong here if a job happens to be running when you rename the monitor
+            // but that's an edge case and the frontend would correct itself on next poll.
+            isRunning: false,
+          };
         },
       );
 
@@ -134,7 +167,10 @@ export const monitor: FastifyPluginAsync = async (fastify) => {
 
           fastify.pollQueue.removeJobScheduler(updated.id);
 
-          return updated;
+          return {
+            ...updated,
+            isRunning: false,
+          };
         },
       );
 
@@ -163,7 +199,10 @@ export const monitor: FastifyPluginAsync = async (fastify) => {
 
           fastify.pollQueue.removeJobScheduler(updated.id);
 
-          return updated;
+          return {
+            ...updated,
+            isRunning: false,
+          };
         },
       );
 
@@ -198,7 +237,10 @@ export const monitor: FastifyPluginAsync = async (fastify) => {
             { name: "poll-request", data: { monitorId: updated.id } },
           );
 
-          return updated;
+          return {
+            ...updated,
+            isRunning: false,
+          };
         },
       );
 

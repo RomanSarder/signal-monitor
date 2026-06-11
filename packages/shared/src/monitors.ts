@@ -3,6 +3,7 @@ export interface Monitor {
   userId: string;
   name: string;
   keywords: string[];
+  isRunning: boolean;
   sources: string[];
   intervalMinutes: number;
   status: "active" | "paused";
