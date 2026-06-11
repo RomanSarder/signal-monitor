@@ -1,7 +1,6 @@
-import { Radio } from "lucide-react";
 import { useMonitors, useInfiniteResults, useStats } from "./queries";
 import TopNav from "../TopNav";
-import { useFilters } from "./useFilters";
+import { useFilters, FILTER_DEFAULTS } from "./useFilters";
 import FilterBar from "./FilterBar";
 import StatsBar from "./StatsBar";
 import ResultCard from "./ResultCard";
@@ -20,19 +19,7 @@ export default function Dashboard() {
 
   function renderFeed() {
     if (monitors.length === 0) {
-      return (
-        <div className="flex flex-col items-center justify-center flex-1">
-          <Radio size={48} strokeWidth={1.5} className="text-zinc-300" aria-hidden="true" />
-          <h1 className="mt-4 text-xl font-semibold text-zinc-900">No results yet</h1>
-          <p className="mt-1 text-sm text-zinc-500">Create a monitor to get started</p>
-          <a
-            href="/monitors/new"
-            className="mt-6 px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium"
-          >
-            Create a monitor
-          </a>
-        </div>
-      );
+      return <EmptyState variant="no-monitors" />;
     }
 
     if (isLoading) {
@@ -60,7 +47,16 @@ export default function Dashboard() {
     }
 
     if (total === 0) {
-      return <EmptyState onClear={clearFilters} />;
+      const hasActiveFilters =
+        filters.categories.length > 0 ||
+        filters.minScore !== FILTER_DEFAULTS.minScore ||
+        filters.monitorId !== "" ||
+        filters.from !== "" ||
+        filters.to !== "" ||
+        filters.savedOnly;
+      return hasActiveFilters
+        ? <EmptyState variant="all-caught-up" onClear={clearFilters} />
+        : <EmptyState variant="no-results" />;
     }
 
     return (
