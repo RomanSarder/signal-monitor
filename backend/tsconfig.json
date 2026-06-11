@@ -3,6 +3,9 @@
   "compilerOptions": {
     "outDir": "dist",
     "sourceMap": true,
+    "paths": {
+      "@signal-monitor/shared": ["../packages/shared/src/index.ts"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts"],

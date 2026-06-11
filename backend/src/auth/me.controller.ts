@@ -21,7 +21,8 @@ const meController: FastifyPluginAsync = async (fastify) => {
         .from(users)
         .where(eq(users.id, id));
 
-      return existingUser;
+      const { passwordHash, ...rest } = existingUser;
+      return { ...rest, createdAt: rest.createdAt.toISOString() };
     },
   );
 };

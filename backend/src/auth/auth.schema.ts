@@ -1,12 +1,4 @@
-import { InferSelectModel } from "drizzle-orm";
-import { users } from "../db/schema";
-
-export interface AuthBody {
-  email: string;
-  password: string;
-}
-
-export type MeResponse = Omit<InferSelectModel<typeof users>, "passwordHash">;
+export type { AuthBody, MeResponse } from "@signal-monitor/shared";
 
 export const authBodySchema = {
   type: "object",

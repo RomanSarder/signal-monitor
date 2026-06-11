@@ -1,5 +1,11 @@
-import { InferSelectModel } from "drizzle-orm";
-import { results } from "../db/schema";
+export type {
+  IntentCategory,
+  Result,
+  PatchResultBody,
+  GetResultsListQuery,
+  ResultsListResponse,
+  ResultStats,
+} from "@signal-monitor/shared";
 
 export interface ResultParams {
   id: string;
@@ -10,11 +16,6 @@ export const resultParamsSchema = {
   required: ["id"],
   properties: { id: { type: "string", format: "uuid" } },
 } as const;
-
-export interface PatchResultBody {
-  isRead?: boolean;
-  isSaved?: boolean;
-}
 
 export const patchResultBodySchema = {
   type: "object",
@@ -59,19 +60,6 @@ export const resultStatsSchema = {
     },
   },
 } as const;
-
-export interface GetResultsListQuery {
-  limit: number;
-  offset: number;
-  monitorId?: string;
-  category?: InferSelectModel<typeof results>["intentCategory"];
-  minScore?: number;
-  isRead: boolean;
-  isSaved: boolean;
-  from: string;
-  to: string;
-  sort: "newest" | "score";
-}
 
 export const querySchema = {
   type: "object",
