@@ -39,6 +39,30 @@ Inspired by Linear, Raycast — modern without being aggressive.
 - Body: zinc-700, font-normal
 - Muted: zinc-500, text-sm
 
+## Icons
+- Library: lucide-react
+- Size: 16px (sm), 20px (md, default), 24px (lg)
+- Color: inherit from parent text color unless explicitly overridden
+- Stroke width: 1.5 (Lucide default)
+
+## Key icon mappings
+| Action / concept | Icon |
+|---|---|
+| Open link | ExternalLink |
+| Save | Bookmark |
+| Dismiss | X |
+| Hiring | Briefcase |
+| Pain point | Zap |
+| Discussion | MessageSquare |
+| Noise | VolumeX |
+| Monitor | Radio |
+| Pause | PauseCircle |
+| Resume | PlayCircle |
+| Run now | RefreshCw |
+| Settings | Settings |
+| Unread | Circle (filled) |
+| HN source | use text "HN" — no icon |
+
 ## Rules
 - Never use raw hex values — always use Tailwind tokens from this palette
 - Never introduce a new color without adding it here first

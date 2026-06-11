@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { AuthBody, MeResponse } from "@signal-monitor/shared";
 
+export class ApiError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+  }
+}
+
 async function apiFetch(path: string, options?: RequestInit) {
   const res = await fetch(`/api${path}`, {
     ...options,
@@ -8,7 +14,7 @@ async function apiFetch(path: string, options?: RequestInit) {
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.message ?? res.statusText);
+    throw new ApiError(res.status, body.message ?? res.statusText);
   }
   const text = await res.text();
   if (!text) return null;

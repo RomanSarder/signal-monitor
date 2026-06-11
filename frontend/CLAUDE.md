@@ -43,15 +43,17 @@ src/
 - On mutation success, invalidate the relevant query cache — do not use optimistic updates
 - Always handle three states: loading skeleton, error with retry, empty state
 
-### Verification
-- After every build step, use Playwright MCP to navigate to http://localhost:5173
-- Take a screenshot and confirm the verification criteria are met
-- Do not mark a step done until Playwright confirms it visually
+## Testing Requirements
+After any UI change, run Playwright tests across three viewports:
+- Desktop: 1280×800
+- Tablet: devices['iPad Mini']  
+- Mobile: devices['iPhone SE'] (smallest common breakpoint)
+
+Flag any layout breaks or console errors per viewport.
 
 ### What not to do
 - Do not define API response types locally — use @signal-monitor/shared
 - Do not use optimistic updates — invalidate and refetch
-- Do not add mobile responsiveness — not in scope for MVP
 - Do not install new packages without asking first
 
 ## Design
