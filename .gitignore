@@ -67,3 +67,4 @@ dist
 # environment variables
 .env
 .env.local
+.playwright-mcp
