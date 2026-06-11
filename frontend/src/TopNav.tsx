@@ -7,7 +7,7 @@ export default function TopNav() {
 
   return (
     <nav className="h-14 flex items-center justify-between gap-4 px-4 sm:px-6 bg-white border-b border-zinc-200">
-      <div className="flex items-center gap-6 shrink-0">
+      <div className="flex items-center gap-4 sm:gap-6 shrink-0">
         <span className="font-semibold text-zinc-900">Signal Monitor</span>
         <Link
           to="/dashboard"
@@ -26,7 +26,7 @@ export default function TopNav() {
       </div>
       <div className="flex items-center gap-3 min-w-0">
         {me?.email && (
-          <span className="text-sm text-zinc-500 truncate min-w-0">{me.email}</span>
+          <span className="hidden sm:block text-sm text-zinc-500 truncate min-w-0">{me.email}</span>
         )}
         <button
           onClick={() =>

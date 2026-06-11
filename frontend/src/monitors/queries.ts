@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { CreateMonitor } from "@signal-monitor/shared";
 import { apiFetch } from "../api";
 import { monitorsQueryKey, useMonitors } from "../dashboard/queries";
 
@@ -24,6 +25,15 @@ export function useRunMonitor() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => apiFetch(`/monitors/${id}/run`, { method: "POST" }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: monitorsQueryKey }),
+  });
+}
+
+export function useCreateMonitor() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateMonitor) =>
+      apiFetch("/monitors", { method: "POST", body: JSON.stringify(data) }),
     onSuccess: () => qc.invalidateQueries({ queryKey: monitorsQueryKey }),
   });
 }

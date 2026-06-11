@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import TopNav from "../TopNav";
 import { useMonitors } from "./queries";
 import MonitorCard, { MonitorCardSkeleton } from "./MonitorCard";
@@ -49,7 +50,18 @@ export default function Monitors() {
   return (
     <div className="min-h-screen flex flex-col bg-zinc-50">
       <TopNav />
-      <main className="flex-1 flex flex-col">{renderContent()}</main>
+      <main className="flex-1 flex flex-col">
+        <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 pt-6 flex items-center justify-between">
+          <h1 className="text-lg font-semibold text-zinc-900">Monitors</h1>
+          <Link
+            to="/monitors/new"
+            className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium"
+          >
+            Create monitor
+          </Link>
+        </div>
+        {renderContent()}
+      </main>
     </div>
   );
 }
