@@ -1,3 +1,5 @@
+CREATE TYPE "public"."monitor_status" AS ENUM('active', 'paused');
+--> statement-breakpoint
 CREATE TABLE "monitors" (
 	"id" uuid DEFAULT gen_random_uuid(),
 	"user_id" uuid NOT NULL,
