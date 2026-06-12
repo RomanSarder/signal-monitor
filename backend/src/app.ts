@@ -12,6 +12,7 @@ import { result } from "./result";
 import { jobRun } from "./job-run";
 import digestPlugin from "./workers/digest-worker/plugin";
 import { digest } from "./digest";
+import { deadLetter } from "./dead-letter";
 
 const app: FastifyPluginAsync = async (fastify): Promise<void> => {
   await fastify.register(env);
@@ -28,6 +29,7 @@ const app: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.register(result);
   fastify.register(jobRun);
   fastify.register(digest);
+  fastify.register(deadLetter);
   fastify.get("/health", async () => ({ status: "ok" }));
 };
 

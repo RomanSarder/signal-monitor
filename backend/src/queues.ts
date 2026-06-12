@@ -14,9 +14,24 @@ export interface DigestJob {
   force?: boolean;
 }
 
+export interface DLQJob {
+  originalQueue: "pollQueue" | "scoreQueue" | "digestQueue";
+  originalJobName: string;
+  originalJobData: PollQueueJob | ScoreQueueJob | DigestJob;
+  failedReason: string;
+  stackTrace?: string;
+  failedAt: string;
+  attemptsMade: number;
+}
+
 const connection: ConnectionOptions = {
   host: process.env.REDIS_HOST!,
   port: parseInt(process.env.REDIS_PORT!, 10) || 6379,
+};
+
+const defaultJobOptions = {
+  attempts: 3,
+  backoff: { type: "exponential" as const, delay: 1000 },
 };
 
 // Provide all 6 type params so NameType resolves to a concrete `string` rather
@@ -28,7 +43,7 @@ export const pollQueue = new Queue<
   PollQueueJob,
   void,
   string
->("pollQueue", { connection });
+>("pollQueue", { connection, defaultJobOptions });
 export const scoreQueue = new Queue<
   ScoreQueueJob,
   void,
@@ -36,7 +51,7 @@ export const scoreQueue = new Queue<
   ScoreQueueJob,
   void,
   string
->("scoreQueue", { connection });
+>("scoreQueue", { connection, defaultJobOptions });
 export const digestQueue = new Queue<
   DigestJob,
   void,
@@ -44,4 +59,5 @@ export const digestQueue = new Queue<
   DigestJob,
   void,
   string
-  >("digestQueue", { connection });
+>("digestQueue", { connection, defaultJobOptions });
+export const deadLetterQueue = new Queue<DLQJob>("deadLetterQueue", { connection });

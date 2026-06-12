@@ -2,6 +2,7 @@ import { Worker } from "bullmq";
 import { Resend } from "resend";
 import { db } from "../connection";
 import { createDigestProcessor } from "./digest-processor";
+import { registerWorkerListeners } from "../register-listeners";
 import { logger } from "../../logger";
 
 const log = logger.child({ worker: "digest-worker" });
@@ -22,8 +23,4 @@ const worker = new Worker(
   { connection },
 );
 
-worker.on("failed", (job, err) =>
-  log.error({ jobId: job?.id, jobData: job?.data, err }, "job failed"),
-);
-worker.on("error", (err) => log.error({ err }, "worker error"));
-worker.on("stalled", (jobId) => log.warn({ jobId }, "job stalled"));
+registerWorkerListeners(worker, "digestQueue", log);
