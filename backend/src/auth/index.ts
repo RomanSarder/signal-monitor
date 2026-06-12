@@ -7,12 +7,18 @@ import signOutController from "./sign-out.controller";
 import meController from "./me.controller";
 import changePasswordController from "./change-password.controller";
 import updateDigestController from "./update-digest.controller";
+import fastifyRateLimit from "@fastify/rate-limit";
 
 const auth: FastifyPluginAsync = async (fastify) => {
   fastify.register(jwt);
 
   fastify.register(
     async (fastify) => {
+      fastify.register(fastifyRateLimit, {
+        max: 10,
+        timeWindow: 15 * 60 * 1000,
+      })
+
       fastify.register(signUpController);
       fastify.register(signInController);
       fastify.register(signOutController);

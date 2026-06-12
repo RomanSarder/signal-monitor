@@ -1,5 +1,12 @@
 {
   "name": "signal-monitor",
   "private": true,
-  "workspaces": ["backend", "frontend", "packages/*"]
+  "workspaces": [
+    "backend",
+    "frontend",
+    "packages/*"
+  ],
+  "dependencies": {
+    "@fastify/rate-limit": "^11.0.0"
+  }
 }
