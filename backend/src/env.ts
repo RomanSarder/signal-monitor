@@ -9,7 +9,7 @@ declare module "fastify" {
       REDIS_PORT: string;
       SECRET: string;
       NODE_ENV: "development" | "production" | "test";
-      FRONTEND_URL: string;
+      FRONTEND_URL?: string;
     };
   }
 }
@@ -24,7 +24,6 @@ const schema = {
     "NODE_ENV",
     "ANTHROPIC_API_KEY",
     "RESEND_API_KEY",
-    "FRONTEND_URL",
   ],
   properties: {
     DATABASE_URL: {

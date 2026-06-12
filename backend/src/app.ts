@@ -18,10 +18,12 @@ import { deadLetter } from "./dead-letter";
 
 const app: FastifyPluginAsync = async (fastify): Promise<void> => {
   await fastify.register(env);
-  fastify.register(cors, {
-    origin: fastify.config.FRONTEND_URL,
-    credentials: true,
-  });
+  if (fastify.config.FRONTEND_URL) {
+    fastify.register(cors, {
+      origin: fastify.config.FRONTEND_URL,
+      credentials: true,
+    })
+  };
   fastify.register(cookie);
   fastify.register(sensible);
   fastify.register(db);
