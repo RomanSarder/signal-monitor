@@ -1,22 +1,13 @@
 FROM node:22-alpine AS builder
 
-# dumb-init is a minimal PID-1 init system for containers.
-# Without it Node.js runs as PID 1 and does NOT forward signals (SIGTERM, SIGINT)
-# to its children, making graceful shutdown impossible. dumb-init:
-#   1. Reaps zombie child processes (Node can spawn them via worker_threads / child_process)
-#   2. Forwards OS signals to the Node process so our shutdown handlers fire
-# We install it in builder so it's available to copy to release.
 RUN apk add --no-cache dumb-init
 
-# Principle of least privilege: the build process does not need root access.
 RUN addgroup -S nodejs && adduser -S nodejs -G nodejs
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 
-# Copy each workspace package's manifest so npm ci can set up the full workspace.
-# We do NOT copy the whole workspace yet — just the package.json files.
 COPY backend/package.json ./backend/
 COPY packages/shared/package.json ./packages/shared/
 
@@ -56,11 +47,15 @@ COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 
 COPY --from=builder --chown=nodejs:nodejs /app/backend/dist ./backend/dist
 
+COPY --from=builder --chown=nodejs:nodejs /app/backend/drizzle ./backend/drizzle
+
 # Copy the compiled shared package directory.
 # node_modules/@signal-monitor/shared is an npm workspace symlink pointing to
 # ../../packages/shared. For Node to resolve that symlink at runtime, the actual
 # packages/shared directory (with its compiled dist/) must exist on the filesystem.
 COPY --from=builder --chown=nodejs:nodejs /app/packages/shared ./packages/shared
+
+COPY --chmod=755 backend/entrypoint.sh /app/entrypoint.sh
 
 ENV NODE_ENV=production
 
@@ -75,11 +70,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
 
 ENTRYPOINT ["dumb-init", "--"]
 
-# Run Node directly (not via npm or fastify-cli) for three reasons:
-#   1. npm adds a wrapper process — SIGTERM must cross a process boundary and is
-#      frequently dropped, preventing graceful shutdown
-#   2. fastify-cli (fastify start) adds startup overhead and its own signal handling
-#      that conflicts with our handlers in server.ts
-#   3. Direct node is the official Fastify production recommendation
-#
-CMD ["node", "backend/dist/backend/src/server.js"]
+# Run via entrypoint.sh which applies DB migrations (drizzle-orm migrator) before
+# starting the server. The script exec's node so dumb-init still forwards signals
+# directly to the Node process — same graceful-shutdown guarantee as before.
+CMD ["/app/entrypoint.sh"]

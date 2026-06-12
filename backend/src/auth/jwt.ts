@@ -51,11 +51,12 @@ export default fastifyPlugin(async (fastify) => {
         email: email,
       });
 
+      const isProd = process.env.NODE_ENV === "production";
       reply.setCookie(COOKIE_NAME, token, {
         path: "/",
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
         httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
         maxAge: 60 * 60 * 24 * 7, // 7 days
       });
     },
