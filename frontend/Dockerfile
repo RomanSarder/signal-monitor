@@ -36,7 +36,7 @@ RUN chown -R nginx:nginx /var/cache/nginx /var/log/nginx /usr/share/nginx/html \
     && touch /var/run/nginx.pid \
     && chown nginx:nginx /var/run/nginx.pid \
     && mkdir -p /etc/nginx/conf.d \
-    && chown nginx:nginx /etc/nginx/conf.d
+    && chown -R nginx:nginx /etc/nginx/conf.d
 
 USER nginx
 
