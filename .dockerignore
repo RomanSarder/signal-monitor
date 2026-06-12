@@ -8,9 +8,6 @@
 **/.env
 **/.env.*
 
-# Frontend is a separate app and not needed for the backend image
-frontend/
-
 # Test artifacts
 **/coverage
 **/*.test.ts
