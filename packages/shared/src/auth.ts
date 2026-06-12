@@ -7,9 +7,14 @@ export interface MeResponse {
   id: string;
   email: string;
   createdAt: string;
+  digestMinutes: number;
 }
 
 export interface ChangePasswordBody {
   currentPassword: string;
   newPassword: string;
+}
+
+export interface UpdateDigestBody {
+  digestMinutes: number;
 }

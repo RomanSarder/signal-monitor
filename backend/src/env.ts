@@ -22,6 +22,7 @@ const schema = {
     "SECRET",
     "NODE_ENV",
     "ANTHROPIC_API_KEY",
+    "RESEND_API_KEY",
   ],
   properties: {
     DATABASE_URL: {
@@ -42,6 +43,13 @@ const schema = {
     },
     ANTHROPIC_API_KEY: {
       type: "string",
+    },
+    RESEND_API_KEY: {
+      type: "string",
+    },
+    RESEND_FROM: {
+      type: "string",
+      default: "onboarding@resend.dev",
     },
   },
 };

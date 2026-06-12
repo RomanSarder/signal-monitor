@@ -1,11 +1,12 @@
 import { Worker } from "bullmq";
-import { hackerNewsSourceAdapter } from "../../source";
-import { scoreQueue } from "../../queues";
-import { createPollProcessor } from "./poll-processor";
+import { Resend } from "resend";
+import { db } from "../connection";
+import { createDigestProcessor } from "./digest-processor";
 import { logger } from "../../logger";
-import { db, redis } from "../connection";
 
-const log = logger.child({ worker: "poll-worker" });
+const log = logger.child({ worker: "digest-worker" });
+
+const resend = new Resend(process.env.RESEND_API_KEY!);
 
 const connection = {
   host: process.env.REDIS_HOST!,
@@ -13,12 +14,10 @@ const connection = {
 };
 
 const worker = new Worker(
-  "pollQueue",
-  createPollProcessor({
+  "digestQueue",
+  createDigestProcessor({
     db,
-    redis,
-    scoreQueue,
-    hnAdapter: hackerNewsSourceAdapter,
+    sendEmail: (params) => resend.emails.send(params),
   }),
   { connection },
 );

@@ -9,6 +9,11 @@ export interface ScoreQueueJob {
   resultId: string;
 }
 
+export interface DigestJob {
+  userId?: string;
+  force?: boolean;
+}
+
 const connection: ConnectionOptions = {
   host: process.env.REDIS_HOST!,
   port: parseInt(process.env.REDIS_PORT!, 10) || 6379,
@@ -32,4 +37,11 @@ export const scoreQueue = new Queue<
   void,
   string
 >("scoreQueue", { connection });
-export const digestQueue = new Queue("digestQueue", { connection });
+export const digestQueue = new Queue<
+  DigestJob,
+  void,
+  string,
+  DigestJob,
+  void,
+  string
+  >("digestQueue", { connection });

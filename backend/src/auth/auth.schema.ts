@@ -1,4 +1,4 @@
-export type { AuthBody, MeResponse, ChangePasswordBody } from "@signal-monitor/shared";
+export type { AuthBody, MeResponse, ChangePasswordBody, UpdateDigestBody } from "@signal-monitor/shared";
 
 export const authBodySchema = {
   type: "object",
@@ -24,5 +24,14 @@ export const meResponseSchema = {
     email: { type: "string", format: "email" },
     id: { type: "string" },
     createdAt: { type: "string", format: "date-time" },
+    digestMinutes: { type: "integer" },
+  },
+} as const;
+
+export const updateDigestBodySchema = {
+  type: "object",
+  required: ["digestMinutes"],
+  properties: {
+    digestMinutes: { type: "integer", minimum: 0, maximum: 1439 },
   },
 } as const;

@@ -9,6 +9,7 @@ export function mockDb(result: unknown) {
     "select", "insert", "update", "delete",
     "from", "where", "values", "set", "orderBy",
     "returning", "onConflictDoNothing",
+    "innerJoin", "leftJoin",
     "groupBy", "limit", "offset",
   ];
   for (const m of methods) {
@@ -28,6 +29,7 @@ export function mockDbMulti(...results: unknown[]) {
     "select", "insert", "update", "delete",
     "from", "where", "values", "set", "orderBy",
     "returning", "onConflictDoNothing",
+    "innerJoin", "leftJoin",
     "groupBy", "limit", "offset",
   ].forEach((m) => {
     chain[m] = () => chain;
@@ -54,9 +56,16 @@ export function mockPollQueue() {
   };
 }
 
+export function mockDigestQueue() {
+  return {
+    add: vi.fn().mockResolvedValue(undefined),
+  };
+}
+
 export interface BuildOptions {
   authenticated?: boolean;
   pollQueue?: ReturnType<typeof mockPollQueue>;
+  digestQueue?: ReturnType<typeof mockDigestQueue>;
 }
 
 export function buildApp(db: any, opts: BuildOptions = {}): FastifyInstance {
@@ -66,6 +75,7 @@ export function buildApp(db: any, opts: BuildOptions = {}): FastifyInstance {
   app.register(sensible);
   app.decorate("db", db);
   app.decorate("pollQueue", (opts.pollQueue ?? mockPollQueue()) as any);
+  app.decorate("digestQueue", (opts.digestQueue ?? mockDigestQueue()) as any);
   app.decorate(
     "authenticate",
     async function (req: FastifyRequest, reply: FastifyReply) {

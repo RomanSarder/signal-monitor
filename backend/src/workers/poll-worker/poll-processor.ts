@@ -62,26 +62,24 @@ export function createPollProcessor({
         let hitsCount = 0;
         const failedKeywords: string[] = [];
 
-        log.info(
-          { monitorId: monitor.id, keywords: monitor.keywords },
-          "starting keyword fetch",
-        );
-
         for (const keyword of monitor.keywords) {
           try {
             const sinceTimestamp =
               Math.floor(Date.now() / 1000) - monitor.intervalMinutes * 60;
+            const t = Date.now();
             const hits = await hnAdapter.fetchKeyword(keyword, sinceTimestamp);
+            const fetchDurationMs = Date.now() - t;
 
-            log.info({ hits }, "hits");
+            let newCount = 0;
+            let dedupCount = 0;
             hitsCount += hits.length;
+
             for (const hit of hits) {
               const dedupKey = `dedup:${monitor.id}:${source}:${hit.source_id}`;
               const dedup = await redis.set(dedupKey, 1, "EX", 30 * 24 * 60 * 60, "NX");
 
-              log.info({ dedup }, "Dedup result");
-
               if (dedup === null) {
+                dedupCount++;
                 continue;
               } else {
                 const [inserted] = await db
@@ -101,12 +99,18 @@ export function createPollProcessor({
                   .returning({ id: results.id });
 
                 if (inserted) {
+                  newCount++;
                   await scoreQueue.add("score-request", {
                     resultId: inserted.id,
                   });
                 }
               }
             }
+
+            log.info(
+              { monitorId: monitor.id, jobRunId: jobRun.id, keyword, hitCount: hits.length, newCount, dedupCount, fetchDurationMs },
+              "keyword fetch complete",
+            );
           } catch (e: any) {
             hasErrors = true;
             failedKeywords.push(keyword);

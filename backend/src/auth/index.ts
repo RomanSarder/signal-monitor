@@ -6,6 +6,7 @@ import signInController from "./sign-in.controller";
 import signOutController from "./sign-out.controller";
 import meController from "./me.controller";
 import changePasswordController from "./change-password.controller";
+import updateDigestController from "./update-digest.controller";
 
 const auth: FastifyPluginAsync = async (fastify) => {
   fastify.register(jwt);
@@ -17,6 +18,7 @@ const auth: FastifyPluginAsync = async (fastify) => {
       fastify.register(signOutController);
       fastify.register(meController);
       fastify.register(changePasswordController);
+      fastify.register(updateDigestController);
     },
     { prefix: "auth" },
   );

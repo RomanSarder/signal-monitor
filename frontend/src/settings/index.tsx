@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, Select, SelectItem } from "@tremor/react";
 import TopNav from "../TopNav";
 import { useMe } from "../auth/queries";
-import { useChangePassword } from "./queries";
+import { useChangePassword, useUpdateDigest } from "./queries";
 import { ApiError } from "../api";
 
 const labelClass = "block text-sm font-medium text-zinc-900 mb-1.5";
@@ -17,6 +17,7 @@ const HOURS = Array.from({ length: 24 }, (_, i) => ({
 export default function Settings() {
   const { data: me } = useMe();
   const changePassword = useChangePassword();
+  const updateDigest = useUpdateDigest();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -25,6 +26,13 @@ export default function Settings() {
   const [passwordSuccess, setPasswordSuccess] = useState(false);
 
   const [digestHour, setDigestHour] = useState("9");
+  const [digestSuccess, setDigestSuccess] = useState(false);
+
+  useEffect(() => {
+    if (me?.digestMinutes !== undefined) {
+      setDigestHour(String(Math.floor(me.digestMinutes / 60)));
+    }
+  }, [me?.digestMinutes]);
 
   function handlePasswordSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -149,7 +157,17 @@ export default function Settings() {
         <Card>
           <h2 className="text-sm font-semibold text-zinc-900 mb-5">Digest</h2>
 
-          <div className="space-y-4">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setDigestSuccess(false);
+              updateDigest.mutate(
+                { digestMinutes: parseInt(digestHour, 10) * 60 },
+                { onSuccess: () => setDigestSuccess(true) },
+              );
+            }}
+            className="space-y-4"
+          >
             <div>
               <label htmlFor="digest-hour" className={labelClass}>
                 Digest time (UTC)
@@ -157,7 +175,7 @@ export default function Settings() {
               <Select
                 id="digest-hour"
                 value={digestHour}
-                onValueChange={setDigestHour}
+                onValueChange={(v) => { setDigestHour(v); setDigestSuccess(false); }}
               >
                 {HOURS.map((h) => (
                   <SelectItem key={h.value} value={h.value}>
@@ -167,18 +185,30 @@ export default function Settings() {
               </Select>
             </div>
 
+            {updateDigest.error && (
+              <div role="alert" className="rounded text-sm bg-red-50 px-3 py-2 text-red-700">
+                {updateDigest.error instanceof ApiError
+                  ? updateDigest.error.message
+                  : "Something went wrong. Please try again."}
+              </div>
+            )}
+
+            {digestSuccess && (
+              <div role="status" className="rounded text-sm bg-green-50 px-3 py-2 text-green-700">
+                Preferences saved.
+              </div>
+            )}
+
             <div className="flex justify-end pt-1">
-              <span title="Coming soon" className="inline-block cursor-not-allowed">
-                <button
-                  type="button"
-                  disabled
-                  className="px-4 py-2 rounded bg-indigo-600 text-white text-sm font-medium opacity-50 pointer-events-none"
-                >
-                  Save preferences
-                </button>
-              </span>
+              <button
+                type="submit"
+                disabled={updateDigest.isPending}
+                className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium disabled:opacity-50"
+              >
+                {updateDigest.isPending ? "Saving…" : "Save preferences"}
+              </button>
             </div>
-          </div>
+          </form>
         </Card>
       </main>
     </div>
