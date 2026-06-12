@@ -6,12 +6,14 @@ export { ApiError } from "../api";
 
 export const meQueryKey = ["me"] as const;
 
+export const meQueryOptions = {
+  queryKey: meQueryKey,
+  queryFn: (): Promise<MeResponse> => apiFetch("/auth/me"),
+  retry: false,
+} as const;
+
 export function useMe() {
-  return useQuery<MeResponse>({
-    queryKey: meQueryKey,
-    queryFn: () => apiFetch("/auth/me"),
-    retry: false,
-  });
+  return useQuery(meQueryOptions);
 }
 
 export function useSignIn() {

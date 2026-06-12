@@ -14,13 +14,18 @@ const auth: FastifyPluginAsync = async (fastify) => {
 
   fastify.register(
     async (fastify) => {
-      fastify.register(fastifyRateLimit, {
-        max: 10,
-        timeWindow: 15 * 60 * 1000,
-      })
+      // Rate-limit only the unauthenticated mutation endpoints that are
+      // brute-force attack surfaces. Authenticated or read-only routes
+      // (me, sign-out, password, digest) are excluded.
+      fastify.register(async (fastify) => {
+        fastify.register(fastifyRateLimit, {
+          max: 10,
+          timeWindow: 15 * 60 * 1000,
+        });
+        fastify.register(signUpController);
+        fastify.register(signInController);
+      });
 
-      fastify.register(signUpController);
-      fastify.register(signInController);
       fastify.register(signOutController);
       fastify.register(meController);
       fastify.register(changePasswordController);

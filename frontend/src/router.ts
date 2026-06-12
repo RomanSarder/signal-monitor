@@ -6,7 +6,9 @@ import Monitors from "./monitors/index";
 import MonitorsNew from "./monitors/new";
 import MonitorDetail from "./monitors/detail";
 import Settings from "./settings/index";
-import { apiFetch, ApiError } from "./api";
+import { ApiError } from "./api";
+import { meQueryOptions } from "./auth/queries";
+import { queryClient } from "./queryClient";
 
 const rootRoute = createRootRoute();
 
@@ -32,7 +34,7 @@ const signUpRoute = createRoute({
 
 async function requireAuth() {
   try {
-    await apiFetch("/auth/me");
+    await queryClient.ensureQueryData(meQueryOptions);
   } catch (e) {
     if (e instanceof ApiError && e.status === 401) {
       throw redirect({ to: "/sign-in" });
