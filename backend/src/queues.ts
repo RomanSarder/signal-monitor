@@ -1,5 +1,6 @@
 import "dotenv/config";
-import { ConnectionOptions, Queue } from "bullmq";
+import { Queue } from "bullmq";
+import { redisConnection } from "./workers/connection";
 
 export interface PollQueueJob {
   monitorId: string;
@@ -26,9 +27,6 @@ export interface DLQJob {
   attemptsMade: number;
 }
 
-const { hostname, port } = new URL(process.env.REDIS_URL!);
-const connection: ConnectionOptions = { host: hostname, port: parseInt(port) };
-
 const defaultJobOptions = {
   attempts: 3,
   backoff: { type: "exponential" as const, delay: 1000 },
@@ -43,7 +41,7 @@ export const pollQueue = new Queue<
   PollQueueJob,
   void,
   string
->("pollQueue", { connection, defaultJobOptions });
+>("pollQueue", { connection: redisConnection, defaultJobOptions });
 export const scoreQueue = new Queue<
   ScoreQueueJob,
   void,
@@ -51,7 +49,7 @@ export const scoreQueue = new Queue<
   ScoreQueueJob,
   void,
   string
->("scoreQueue", { connection, defaultJobOptions });
+>("scoreQueue", { connection: redisConnection, defaultJobOptions });
 export const digestQueue = new Queue<
   DigestJob,
   void,
@@ -59,7 +57,7 @@ export const digestQueue = new Queue<
   DigestJob,
   void,
   string
->("digestQueue", { connection, defaultJobOptions });
+>("digestQueue", { connection: redisConnection, defaultJobOptions });
 export const cleanupQueue = new Queue<
   CleanupJob,
   void,
@@ -67,5 +65,5 @@ export const cleanupQueue = new Queue<
   CleanupJob,
   void,
   string
->("cleanupQueue", { connection, defaultJobOptions });
-export const deadLetterQueue = new Queue<DLQJob>("deadLetterQueue", { connection });
+>("cleanupQueue", { connection: redisConnection, defaultJobOptions });
+export const deadLetterQueue = new Queue<DLQJob>("deadLetterQueue", { connection: redisConnection });

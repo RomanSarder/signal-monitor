@@ -4,12 +4,9 @@ import { scoreQueue } from "../../queues";
 import { registerWorkerListeners } from "../register-listeners";
 import { createPollProcessor } from "./poll-processor";
 import { logger } from "../../logger";
-import { db, redis } from "../connection";
+import { db, redis, redisConnection } from "../connection";
 
 const log = logger.child({ worker: "poll-worker" });
-
-const { hostname, port } = new URL(process.env.REDIS_URL!);
-const connection = { host: hostname, port: parseInt(port) };
 
 const worker = new Worker(
   "pollQueue",
@@ -19,7 +16,7 @@ const worker = new Worker(
     scoreQueue,
     hnAdapter: hackerNewsSourceAdapter,
   }),
-  { connection },
+  { connection: redisConnection },
 );
 
 registerWorkerListeners(worker, "pollQueue", log);
