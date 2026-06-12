@@ -17,6 +17,7 @@ COPY packages/shared/ ./packages/shared/
 
 COPY backend/src/ ./backend/src/
 COPY backend/tsconfig.json ./backend/
+COPY backend/drizzle/ ./backend/drizzle/
 
 # Build the shared package FIRST.
 # Why: backend/tsconfig.json has a path alias "@signal-monitor/shared" that
