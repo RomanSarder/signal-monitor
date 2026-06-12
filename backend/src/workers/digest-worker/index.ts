@@ -9,10 +9,8 @@ const log = logger.child({ worker: "digest-worker" });
 
 const resend = new Resend(process.env.RESEND_API_KEY!);
 
-const connection = {
-  host: process.env.REDIS_HOST!,
-  port: parseInt(process.env.REDIS_PORT!, 10),
-};
+const { hostname, port } = new URL(process.env.REDIS_URL!);
+const connection = { host: hostname, port: parseInt(port) };
 
 const worker = new Worker(
   "digestQueue",

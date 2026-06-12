@@ -26,10 +26,8 @@ export interface DLQJob {
   attemptsMade: number;
 }
 
-const connection: ConnectionOptions = {
-  host: process.env.REDIS_HOST!,
-  port: parseInt(process.env.REDIS_PORT!, 10) || 6379,
-};
+const { hostname, port } = new URL(process.env.REDIS_URL!);
+const connection: ConnectionOptions = { host: hostname, port: parseInt(port) };
 
 const defaultJobOptions = {
   attempts: 3,

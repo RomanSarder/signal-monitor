@@ -6,10 +6,8 @@ import { logger } from "../../logger";
 
 const log = logger.child({ worker: "cleanup-worker" });
 
-const connection = {
-  host: process.env.REDIS_HOST!,
-  port: parseInt(process.env.REDIS_PORT!, 10),
-};
+const { hostname, port } = new URL(process.env.REDIS_URL!);
+const connection = { host: hostname, port: parseInt(port) };
 
 const worker = new Worker(
   "cleanupQueue",
