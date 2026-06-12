@@ -1,4 +1,5 @@
 import { SourceAdapter } from "./adapter";
+import sanitize from 'sanitize-html';
 
 interface HnResult {
   objectID: string;
@@ -30,7 +31,7 @@ export const hackerNewsSourceAdapter: SourceAdapter = {
       return {
         source_id: entry.objectID,
         title: entry.title,
-        snippet: entry.story_text || entry.comment_text || "",
+        snippet: sanitize(entry.story_text || entry.comment_text || "", { allowedTags: [] }),
         url:
           entry.url || `https://news.ycombinator.com/item?id=${entry.objectID}`,
         author: entry.author,
