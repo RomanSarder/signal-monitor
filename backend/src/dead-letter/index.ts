@@ -24,6 +24,7 @@ export const deadLetter: FastifyPluginAsync = async (fastify) => {
           pollQueue: fastify.pollQueue,
           scoreQueue: fastify.scoreQueue,
           digestQueue: fastify.digestQueue,
+          cleanupQueue: fastify.cleanupQueue,
         };
 
         await queueMap[originalQueue].add(originalJobName, originalJobData);

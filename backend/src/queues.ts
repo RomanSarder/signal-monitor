@@ -14,8 +14,10 @@ export interface DigestJob {
   force?: boolean;
 }
 
+export interface CleanupJob {}
+
 export interface DLQJob {
-  originalQueue: "pollQueue" | "scoreQueue" | "digestQueue";
+  originalQueue: "pollQueue" | "scoreQueue" | "digestQueue" | "cleanupQueue";
   originalJobName: string;
   originalJobData: PollQueueJob | ScoreQueueJob | DigestJob;
   failedReason: string;
@@ -60,4 +62,12 @@ export const digestQueue = new Queue<
   void,
   string
 >("digestQueue", { connection, defaultJobOptions });
+export const cleanupQueue = new Queue<
+  CleanupJob,
+  void,
+  string,
+  CleanupJob,
+  void,
+  string
+>("cleanupQueue", { connection, defaultJobOptions });
 export const deadLetterQueue = new Queue<DLQJob>("deadLetterQueue", { connection });

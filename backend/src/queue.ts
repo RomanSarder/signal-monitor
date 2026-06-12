@@ -1,6 +1,6 @@
 import { Queue } from "bullmq";
 import fastifyPlugin from "fastify-plugin";
-import { pollQueue, scoreQueue, digestQueue, deadLetterQueue } from "./queues";
+import { pollQueue, scoreQueue, digestQueue, cleanupQueue, deadLetterQueue } from "./queues";
 
 export type { PollQueueJob, ScoreQueueJob, DLQJob } from "./queues";
 
@@ -9,6 +9,7 @@ declare module "fastify" {
     pollQueue: Queue;
     scoreQueue: Queue;
     digestQueue: Queue;
+    cleanupQueue: Queue;
     deadLetterQueue: Queue;
   }
 }
@@ -17,5 +18,6 @@ export default fastifyPlugin(async (fastify) => {
   fastify.decorate("pollQueue", pollQueue);
   fastify.decorate("scoreQueue", scoreQueue);
   fastify.decorate("digestQueue", digestQueue);
+  fastify.decorate("cleanupQueue", cleanupQueue);
   fastify.decorate("deadLetterQueue", deadLetterQueue);
 });

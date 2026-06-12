@@ -9,7 +9,7 @@ export const jobRuns = pgTable("job_runs", {
   monitorId: uuid("monitor_id").references(() => monitors.id, {
     onDelete: "cascade",
   }),
-  jobType: text("job_type").notNull().$type<"poll" | "score" | "digest">(),
+  jobType: text("job_type").notNull().$type<"poll" | "score" | "digest" | "cleanup">(),
   status: text()
     .notNull()
     .$type<"started" | "completed" | "completed_with_errors" | "failed">(),

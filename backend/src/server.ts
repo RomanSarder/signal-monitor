@@ -1,16 +1,17 @@
+import "./workers/poll-worker/index";
+import "./workers/score-worker/index";
 import Fastify from "fastify";
 import { config } from "dotenv";
 import app from "./app";
 
 config();
 
+const isProd = process.env.NODE_ENV === "production";
+
 const server = Fastify({
-  logger: {
-    transport: {
-      target: "pino-pretty",
-      options: { colorize: true },
-    },
-  },
+  logger: isProd
+    ? true
+    : { transport: { target: "pino-pretty", options: { colorize: true } } },
 });
 
 server.register(app);
@@ -24,3 +25,12 @@ server.listen(
     }
   },
 );
+
+const shutdown = async (signal: string) => {
+  server.log.info(`Received ${signal}, shutting down`);
+  await server.close();
+  process.exit(0);
+};
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));

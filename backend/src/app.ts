@@ -11,6 +11,7 @@ import queue from "./queue";
 import { result } from "./result";
 import { jobRun } from "./job-run";
 import digestPlugin from "./workers/digest-worker/plugin";
+import cleanupPlugin from "./workers/cleanup-worker/plugin";
 import { digest } from "./digest";
 import { deadLetter } from "./dead-letter";
 
@@ -22,7 +23,8 @@ const app: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.register(cache);
   fastify.register(queue);
 
-  fastify.register(digestPlugin)
+  fastify.register(digestPlugin);
+  fastify.register(cleanupPlugin);
 
   fastify.register(auth);
   fastify.register(monitor);
