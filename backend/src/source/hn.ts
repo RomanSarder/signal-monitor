@@ -1,5 +1,8 @@
 import { SourceAdapter } from "./adapter";
+import { RateLimitError } from "./errors";
 import sanitize from 'sanitize-html';
+
+const HN_RATE_LIMIT_MS = 60 * 60 * 1000; // 1 hour — HN Algolia: 1,000 req/hour
 
 interface HnResult {
   objectID: string;
@@ -22,6 +25,10 @@ export const hackerNewsSourceAdapter: SourceAdapter = {
     const response = await fetch(url);
 
     if (!response.ok) {
+      if (response.status === 429) {
+        const retryAfterSec = parseInt(response.headers.get("Retry-After") ?? "", 10);
+        throw new RateLimitError(Number.isFinite(retryAfterSec) ? retryAfterSec * 1000 : HN_RATE_LIMIT_MS);
+      }
       throw new Error(`HN Algolia fetch failed: ${response.status}`);
     }
 

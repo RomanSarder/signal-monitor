@@ -4,6 +4,7 @@ import { redisConnection } from "./workers/connection";
 
 export interface PollQueueJob {
   monitorId: string;
+  remainingWork?: Array<{ source: string; keywords: string[] }>;
 }
 
 export interface ScoreQueueJob {

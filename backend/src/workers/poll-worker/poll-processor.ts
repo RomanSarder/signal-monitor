@@ -7,6 +7,7 @@ import { results } from "../../db/schema/results";
 import { jobRuns } from "../../db/schema/jobRuns";
 import { jobRunSources } from "../../db/schema/jobRunSources";
 import { SourceAdapter } from "../../source/adapter";
+import { RateLimitError } from "../../source/errors";
 
 const log = logger.child({ worker: "poll-worker" });
 
@@ -16,14 +17,18 @@ export interface PollProcessorDeps {
   scoreQueue: {
     add: (name: string, data: { resultId: string }) => Promise<any>;
   };
-  hnAdapter: SourceAdapter;
+  pollQueue: {
+    add: (name: string, data: PollQueueJob, opts?: { delay: number }) => Promise<any>;
+  };
+  adapters: Record<string, SourceAdapter>;
 }
 
 export function createPollProcessor({
   db,
   redis,
   scoreQueue,
-  hnAdapter,
+  pollQueue,
+  adapters,
 }: PollProcessorDeps) {
   return async (job: Job<PollQueueJob>) => {
     const data = job.data;
@@ -56,18 +61,33 @@ export function createPollProcessor({
       "poll job started",
     );
 
+    const workItems: Array<{ source: string; keywords: string[] }> =
+      data.remainingWork ??
+      monitor.sources.map((source: string) => ({ source, keywords: monitor.keywords }));
+
+    const rateLimitedWork: Array<{ source: string; keywords: string[]; retryAfterMs: number }> = [];
+    let anyErrors = false;
+    let totalHits = 0;
+
     try {
-      for (const source of ["hn"]) {
+      for (const workItem of workItems) {
+        const adapter = adapters[workItem.source];
+        if (!adapter) {
+          log.warn({ monitorId: monitor.id, source: workItem.source }, "no adapter registered, skipping source");
+          continue;
+        }
+
         let hasErrors = false;
         let hitsCount = 0;
         const failedKeywords: string[] = [];
 
-        for (const keyword of monitor.keywords) {
+        for (let i = 0; i < workItem.keywords.length; i++) {
+          const keyword = workItem.keywords[i];
           try {
             const sinceTimestamp =
               Math.floor(Date.now() / 1000) - monitor.intervalMinutes * 60;
             const t = Date.now();
-            const hits = await hnAdapter.fetchKeyword(keyword, sinceTimestamp);
+            const hits = await adapter.fetchKeyword(keyword, sinceTimestamp);
             const fetchDurationMs = Date.now() - t;
 
             let newCount = 0;
@@ -75,7 +95,7 @@ export function createPollProcessor({
             hitsCount += hits.length;
 
             for (const hit of hits) {
-              const dedupKey = `dedup:${monitor.id}:${source}:${hit.source_id}`;
+              const dedupKey = `dedup:${monitor.id}:${workItem.source}:${hit.source_id}`;
               const dedup = await redis.set(dedupKey, 1, "EX", 30 * 24 * 60 * 60, "NX");
 
               if (dedup === null) {
@@ -85,7 +105,7 @@ export function createPollProcessor({
                 const [inserted] = await db
                   .insert(results)
                   .values({
-                    source,
+                    source: workItem.source,
                     sourceId: hit.source_id,
                     monitorId: monitor.id,
                     url: hit.url,
@@ -108,49 +128,70 @@ export function createPollProcessor({
             }
 
             log.info(
-              { monitorId: monitor.id, jobRunId: jobRun.id, keyword, hitCount: hits.length, newCount, dedupCount, fetchDurationMs },
+              { monitorId: monitor.id, jobRunId: jobRun.id, source: workItem.source, keyword, hitCount: hits.length, newCount, dedupCount, fetchDurationMs },
               "keyword fetch complete",
             );
           } catch (e: any) {
+            if (e instanceof RateLimitError) {
+              const remaining = workItem.keywords.slice(i);
+              rateLimitedWork.push({ source: workItem.source, keywords: remaining, retryAfterMs: e.retryAfterMs });
+              log.warn(
+                { monitorId: monitor.id, jobRunId: jobRun.id, source: workItem.source, keyword, remainingCount: remaining.length },
+                "rate limit hit, will reschedule remaining keywords",
+              );
+              hasErrors = true;
+              anyErrors = true;
+              failedKeywords.push(...remaining);
+              break;
+            }
             hasErrors = true;
+            anyErrors = true;
             failedKeywords.push(keyword);
             log.error(
-              { monitorId: monitor.id, jobRunId: jobRun.id, keyword, err: e },
+              { monitorId: monitor.id, jobRunId: jobRun.id, source: workItem.source, keyword, err: e },
               "failed to fetch keyword",
             );
           }
         }
 
-        await db.update(monitors).set({
-          lastRunAt: new Date(),
-          lastResultCount: hitsCount,
-        });
-
-        const finalStatus = hasErrors ? "completed_with_errors" : "completed";
-        log.info(
-          {
-            monitorId: monitor.id,
-            jobRunId: jobRun.id,
-            status: finalStatus,
-            hitsCount,
-          },
-          "poll job finished",
-        );
-
-        await db
-          .update(jobRuns)
-          .set({ status: finalStatus, finishedAt: new Date() })
-          .where(eq(jobRuns.id, jobRun.id));
+        totalHits += hitsCount;
 
         await db.insert(jobRunSources).values({
           jobRunId: jobRun.id,
-          source,
+          source: workItem.source,
           status: hasErrors ? "completed_with_errors" : "completed",
           resultFetched: hitsCount,
           failedKeywords,
           createdAt: new Date(),
         });
       }
+
+      if (rateLimitedWork.length > 0) {
+        const delay = Math.max(...rateLimitedWork.map((w) => w.retryAfterMs));
+        await pollQueue.add(
+          "poll-request",
+          { monitorId: monitor.id, remainingWork: rateLimitedWork.map(({ source, keywords }) => ({ source, keywords })) },
+          { delay },
+        );
+      }
+
+      const finalStatus = anyErrors ? "completed_with_errors" : "completed";
+
+      log.info(
+        { monitorId: monitor.id, jobRunId: jobRun.id, status: finalStatus, totalHits },
+        "poll job finished",
+      );
+
+      await db.update(monitors).set({
+        lastRunAt: new Date(),
+        lastResultCount: totalHits,
+      });
+
+      await db
+        .update(jobRuns)
+        .set({ status: finalStatus, finishedAt: new Date() })
+        .where(eq(jobRuns.id, jobRun.id));
+
     } catch (e) {
       log.error(
         { monitorId: monitor.id, jobRunId: jobRun.id, err: e },
@@ -161,7 +202,7 @@ export function createPollProcessor({
         .set({ status: "failed", finishedAt: new Date() })
         .where(eq(jobRuns.id, jobRun.id));
 
-      throw e
+      throw e;
     }
   };
 }

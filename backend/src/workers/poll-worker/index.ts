@@ -1,6 +1,6 @@
 import { Worker } from "bullmq";
-import { hackerNewsSourceAdapter } from "../../source";
-import { scoreQueue } from "../../queues";
+import { adapters } from "../../source";
+import { scoreQueue, pollQueue } from "../../queues";
 import { registerWorkerListeners } from "../register-listeners";
 import { createPollProcessor } from "./poll-processor";
 import { logger } from "../../logger";
@@ -14,7 +14,8 @@ const worker = new Worker(
     db,
     redis,
     scoreQueue,
-    hnAdapter: hackerNewsSourceAdapter,
+    pollQueue,
+    adapters,
   }),
   { connection: redisConnection },
 );

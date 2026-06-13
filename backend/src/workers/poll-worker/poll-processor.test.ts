@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { createPollProcessor } from "./poll-processor";
+import { RateLimitError } from "../../source/errors";
 import { mockDbMulti, mockJob } from "../../test-utils";
 
 const MONITOR_ID = "00000000-0000-0000-0000-000000000001";
@@ -37,101 +38,187 @@ const hitRow = {
   published_at: new Date(),
 };
 
-
+const makeDeps = (overrides: any = {}) => ({
+  redis: { set: vi.fn() },
+  scoreQueue: { add: vi.fn() },
+  pollQueue: { add: vi.fn().mockResolvedValue(undefined) },
+  ...overrides,
+});
 
 describe("createPollProcessor", () => {
   it("returns early when monitor is not found", async () => {
     const db = mockDbMulti([]);
     const hnAdapter = { fetchKeyword: vi.fn() };
-    const scoreQueue = { add: vi.fn() };
-    const redis = { set: vi.fn() };
+    const deps = makeDeps({ db, adapters: { hn: hnAdapter } });
 
-    await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID }));
+    await createPollProcessor(deps)(mockJob({ monitorId: MONITOR_ID }));
 
     expect(hnAdapter.fetchKeyword).not.toHaveBeenCalled();
-    expect(scoreQueue.add).not.toHaveBeenCalled();
+    expect(deps.scoreQueue.add).not.toHaveBeenCalled();
   });
 
   it("returns early when monitor is paused", async () => {
     const db = mockDbMulti([{ ...monitorRow, status: "paused" }]);
     const hnAdapter = { fetchKeyword: vi.fn() };
-    const scoreQueue = { add: vi.fn() };
-    const redis = { set: vi.fn() };
+    const deps = makeDeps({ db, adapters: { hn: hnAdapter } });
 
-    await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID }));
+    await createPollProcessor(deps)(mockJob({ monitorId: MONITOR_ID }));
 
     expect(hnAdapter.fetchKeyword).not.toHaveBeenCalled();
-    expect(scoreQueue.add).not.toHaveBeenCalled();
+    expect(deps.scoreQueue.add).not.toHaveBeenCalled();
   });
 
   it("inserts result and enqueues score job for a new hit", async () => {
-    // DB calls: select monitor, insert jobRun, insert result, update monitors, update jobRuns, insert jobRunSources
+    // DB calls: select monitor, insert jobRun, insert result, insert jobRunSources, update monitors, update jobRuns
     const db = mockDbMulti([monitorRow], [jobRunRow], [{ id: RESULT_ID }], [], [], []);
-    const redis = { set: vi.fn().mockResolvedValue("OK") }; // "OK" = not a duplicate (key was set)
-    const scoreQueue = { add: vi.fn().mockResolvedValue(undefined) };
     const hnAdapter = { fetchKeyword: vi.fn().mockResolvedValue([hitRow]) };
+    const deps = makeDeps({ db, redis: { set: vi.fn().mockResolvedValue("OK") }, adapters: { hn: hnAdapter } });
 
-    await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID }));
+    await createPollProcessor(deps)(mockJob({ monitorId: MONITOR_ID }));
 
     expect(hnAdapter.fetchKeyword).toHaveBeenCalledWith("signal", expect.any(Number));
-    expect(redis.set).toHaveBeenCalledWith(
+    expect(deps.redis.set).toHaveBeenCalledWith(
       `dedup:${MONITOR_ID}:hn:${hitRow.source_id}`,
       1,
       "EX",
       30 * 24 * 60 * 60,
       "NX",
     );
-    expect(scoreQueue.add).toHaveBeenCalledOnce();
-    expect(scoreQueue.add).toHaveBeenCalledWith("score-request", { resultId: RESULT_ID });
+    expect(deps.scoreQueue.add).toHaveBeenCalledOnce();
+    expect(deps.scoreQueue.add).toHaveBeenCalledWith("score-request", { resultId: RESULT_ID });
   });
 
   it("skips insert and score job for a redis-duplicate hit", async () => {
-    // DB calls: select monitor, insert jobRun, update monitors, update jobRuns, insert jobRunSources
+    // DB calls: select monitor, insert jobRun, insert jobRunSources, update monitors, update jobRuns
     const db = mockDbMulti([monitorRow], [jobRunRow], [], [], []);
-    const redis = { set: vi.fn().mockResolvedValue(null) }; // null = duplicate (key already existed)
-    const scoreQueue = { add: vi.fn() };
     const hnAdapter = { fetchKeyword: vi.fn().mockResolvedValue([hitRow]) };
+    const deps = makeDeps({ db, redis: { set: vi.fn().mockResolvedValue(null) }, adapters: { hn: hnAdapter } });
 
-    await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID }));
+    await createPollProcessor(deps)(mockJob({ monitorId: MONITOR_ID }));
 
-    expect(scoreQueue.add).not.toHaveBeenCalled();
+    expect(deps.scoreQueue.add).not.toHaveBeenCalled();
   });
 
   it("skips score job when result already exists in db", async () => {
-    // DB calls: select monitor, insert jobRun, insert result (conflict → empty), update monitors, update jobRuns, insert jobRunSources
+    // DB calls: select monitor, insert jobRun, insert result (conflict → empty), insert jobRunSources, update monitors, update jobRuns
     const db = mockDbMulti([monitorRow], [jobRunRow], [], [], [], []);
-    const redis = { set: vi.fn().mockResolvedValue("OK") };
-    const scoreQueue = { add: vi.fn() };
     const hnAdapter = { fetchKeyword: vi.fn().mockResolvedValue([hitRow]) };
+    const deps = makeDeps({ db, redis: { set: vi.fn().mockResolvedValue("OK") }, adapters: { hn: hnAdapter } });
 
-    await createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID }));
+    await createPollProcessor(deps)(mockJob({ monitorId: MONITOR_ID }));
 
-    expect(scoreQueue.add).not.toHaveBeenCalled();
+    expect(deps.scoreQueue.add).not.toHaveBeenCalled();
   });
 
-  it("completes with errors when a keyword fetch fails", async () => {
-    // DB calls: select monitor, insert jobRun, update monitors, update jobRuns, insert jobRunSources
+  it("completes with errors when a keyword fetch fails with a non-rate-limit error", async () => {
+    // DB calls: select monitor, insert jobRun, insert jobRunSources, update monitors, update jobRuns
     const db = mockDbMulti([monitorRow], [jobRunRow], [], [], []);
-    const redis = { set: vi.fn() };
-    const scoreQueue = { add: vi.fn() };
     const hnAdapter = { fetchKeyword: vi.fn().mockRejectedValue(new Error("fetch failed")) };
+    const deps = makeDeps({ db, adapters: { hn: hnAdapter } });
 
     await expect(
-      createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID })),
+      createPollProcessor(deps)(mockJob({ monitorId: MONITOR_ID })),
     ).resolves.toBeUndefined();
 
-    expect(scoreQueue.add).not.toHaveBeenCalled();
+    expect(deps.scoreQueue.add).not.toHaveBeenCalled();
+    expect(deps.pollQueue.add).not.toHaveBeenCalled();
   });
 
   it("marks job run as failed when an outer db operation throws", async () => {
-    // DB calls: select monitor, insert jobRun, update monitors (throws), update jobRuns (failed)
+    // DB calls: select monitor, insert jobRun, insert jobRunSources (throws), update jobRuns (failed)
     const db = mockDbMulti([monitorRow], [jobRunRow], new Error("db error"), []);
-    const redis = { set: vi.fn() };
-    const scoreQueue = { add: vi.fn() };
     const hnAdapter = { fetchKeyword: vi.fn().mockResolvedValue([]) };
+    const deps = makeDeps({ db, adapters: { hn: hnAdapter } });
 
     await expect(
-      createPollProcessor({ db, redis, scoreQueue, hnAdapter })(mockJob({ monitorId: MONITOR_ID })),
-    ).resolves.toBeUndefined();
+      createPollProcessor(deps)(mockJob({ monitorId: MONITOR_ID })),
+    ).rejects.toThrow("db error");
+  });
+
+  it("skips unknown source and completes without error", async () => {
+    // DB calls: select monitor, insert jobRun, update monitors, update jobRuns
+    const db = mockDbMulti([{ ...monitorRow, sources: ["unknown"] }], [jobRunRow], [], []);
+    const hnAdapter = { fetchKeyword: vi.fn() };
+    const deps = makeDeps({ db, adapters: { hn: hnAdapter } });
+
+    await createPollProcessor(deps)(mockJob({ monitorId: MONITOR_ID }));
+
+    expect(hnAdapter.fetchKeyword).not.toHaveBeenCalled();
+  });
+});
+
+describe("createPollProcessor — rate limit handling", () => {
+  const multiKeywordMonitor = { ...monitorRow, keywords: ["signal", "monitor", "hacker"] };
+
+  it("schedules follow-up job with remaining keywords when rate limited on a middle keyword", async () => {
+    const db = mockDbMulti([multiKeywordMonitor], [jobRunRow], [], [], []);
+    const hnAdapter = {
+      fetchKeyword: vi.fn()
+        .mockResolvedValueOnce([])
+        .mockRejectedValueOnce(new RateLimitError(60 * 60 * 1000)),
+    };
+    const deps = makeDeps({ db, adapters: { hn: hnAdapter } });
+
+    await createPollProcessor(deps)(mockJob({ monitorId: MONITOR_ID }));
+
+    expect(hnAdapter.fetchKeyword).toHaveBeenCalledTimes(2);
+    expect(deps.pollQueue.add).toHaveBeenCalledWith(
+      "poll-request",
+      { monitorId: MONITOR_ID, remainingWork: [{ source: "hn", keywords: ["monitor", "hacker"] }] },
+      { delay: 60 * 60 * 1000 },
+    );
+  });
+
+  it("schedules follow-up with all keywords when rate limited on the first keyword", async () => {
+    const db = mockDbMulti([multiKeywordMonitor], [jobRunRow], [], [], []);
+    const hnAdapter = { fetchKeyword: vi.fn().mockRejectedValue(new RateLimitError(60 * 60 * 1000)) };
+    const deps = makeDeps({ db, adapters: { hn: hnAdapter } });
+
+    await createPollProcessor(deps)(mockJob({ monitorId: MONITOR_ID }));
+
+    expect(hnAdapter.fetchKeyword).toHaveBeenCalledTimes(1);
+    expect(deps.pollQueue.add).toHaveBeenCalledWith(
+      "poll-request",
+      { monitorId: MONITOR_ID, remainingWork: [{ source: "hn", keywords: ["signal", "monitor", "hacker"] }] },
+      { delay: 60 * 60 * 1000 },
+    );
+  });
+
+  it("uses Retry-After delay from RateLimitError when header is provided", async () => {
+    const db = mockDbMulti([monitorRow], [jobRunRow], [], [], []);
+    const hnAdapter = { fetchKeyword: vi.fn().mockRejectedValue(new RateLimitError(30 * 60 * 1000)) };
+    const deps = makeDeps({ db, adapters: { hn: hnAdapter } });
+
+    await createPollProcessor(deps)(mockJob({ monitorId: MONITOR_ID }));
+
+    expect(deps.pollQueue.add).toHaveBeenCalledWith(
+      "poll-request",
+      expect.anything(),
+      { delay: 30 * 60 * 1000 },
+    );
+  });
+
+  it("only processes specified source/keyword pairs when remainingWork is present", async () => {
+    const db = mockDbMulti([monitorRow], [jobRunRow], [], [], []);
+    const hnAdapter = { fetchKeyword: vi.fn().mockResolvedValue([]) };
+    const deps = makeDeps({ db, adapters: { hn: hnAdapter } });
+
+    await createPollProcessor(deps)(
+      mockJob({ monitorId: MONITOR_ID, remainingWork: [{ source: "hn", keywords: ["subset"] }] }),
+    );
+
+    expect(hnAdapter.fetchKeyword).toHaveBeenCalledWith("subset", expect.any(Number));
+    expect(hnAdapter.fetchKeyword).toHaveBeenCalledTimes(1);
+    expect(deps.pollQueue.add).not.toHaveBeenCalled();
+  });
+
+  it("does not schedule follow-up when no rate limits are hit", async () => {
+    const db = mockDbMulti([monitorRow], [jobRunRow], [], [], []);
+    const hnAdapter = { fetchKeyword: vi.fn().mockResolvedValue([]) };
+    const deps = makeDeps({ db, adapters: { hn: hnAdapter } });
+
+    await createPollProcessor(deps)(mockJob({ monitorId: MONITOR_ID }));
+
+    expect(deps.pollQueue.add).not.toHaveBeenCalled();
   });
 });
