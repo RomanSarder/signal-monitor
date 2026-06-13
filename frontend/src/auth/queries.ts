@@ -10,6 +10,7 @@ export const meQueryOptions = {
   queryKey: meQueryKey,
   queryFn: (): Promise<MeResponse> => apiFetch("/auth/me"),
   retry: false,
+  staleTime: Infinity,
 } as const;
 
 export function useMe() {
