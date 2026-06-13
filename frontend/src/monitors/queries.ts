@@ -28,7 +28,10 @@ export function useDeleteMonitor() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => apiFetch(`/monitors/${id}`, { method: "DELETE" }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: monitorsQueryKey }),
+    onSuccess: (_, id) => {
+      qc.removeQueries({ queryKey: ["monitors", id] });
+      qc.invalidateQueries({ queryKey: monitorsQueryKey, exact: true });
+    },
   });
 }
 

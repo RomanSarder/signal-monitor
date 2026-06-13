@@ -57,6 +57,10 @@ Flag any layout breaks or console errors per viewport.
 - Do not define API response types locally — use @signal-monitor/shared
 - Do not use optimistic updates — invalidate and refetch
 - Do not install new packages without asking first
+- Do not add comments to code. No inline comments, no section dividers, 
+no comments above JSX blocks describing what the block renders. 
+Code should be self-explanatory through naming. If a block needs a 
+comment to explain what it is, extract it into a named component instead.
 
 ## Design
 For all visual work, refer to `THEME.md` for the color palette and token definitions.
