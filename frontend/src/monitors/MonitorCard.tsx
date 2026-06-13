@@ -3,32 +3,9 @@ import { Link } from "@tanstack/react-router";
 import { PauseCircle, PencilLine, PlayCircle, RefreshCw } from "lucide-react";
 import type { Monitor } from "@signal-monitor/shared";
 import { usePauseMonitor, useResumeMonitor, useRunMonitor } from "./queries";
-
-function formatTimeAgo(dateStr: string | null): string {
-  if (!dateStr) return "Never run";
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60_000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
-}
-
-function StatusBadge({ status }: { status: "active" | "paused" }) {
-  const style =
-    status === "active"
-      ? "bg-green-50 text-green-500"
-      : "bg-zinc-100 text-zinc-400";
-  return (
-    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${style}`}>
-      {status === "active" ? "Active" : "Paused"}
-    </span>
-  );
-}
-
-const actionBtn =
-  "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 border border-transparent hover:border-zinc-200 disabled:opacity-40 disabled:cursor-default transition-colors";
+import { formatTimeAgo } from "../utils/format";
+import StatusBadge from "./StatusBadge";
+import { actionBtn } from "./constants";
 
 export default function MonitorCard({ monitor }: { monitor: Monitor }) {
   const pause = usePauseMonitor();

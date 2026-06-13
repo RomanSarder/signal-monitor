@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import TopNav from "../TopNav";
 import { useMonitors } from "./queries";
 import MonitorCard, { MonitorCardSkeleton } from "./MonitorCard";
-import EmptyState from "./EmptyState";
+import EmptyState from "../dashboard/EmptyState";
 
 const listClass = "flex flex-col gap-4 w-full max-w-3xl mx-auto px-4 sm:px-6 py-6";
 
@@ -35,7 +35,7 @@ export default function Monitors() {
     }
 
     if (!monitors?.length) {
-      return <EmptyState />;
+      return <EmptyState variant="no-monitors" />;
     }
 
     return (

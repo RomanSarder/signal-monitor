@@ -1,19 +1,11 @@
 import { Bookmark, ExternalLink, X } from "lucide-react";
-import type { Result } from "@signal-monitor/shared";
+import type { IntentCategory, Result } from "@signal-monitor/shared";
 import { useDeleteResult, usePatchResult } from "./queries";
+import { formatTimeAgo } from "../utils/format";
+import { CATEGORY_STYLES, CATEGORY_BORDER, CATEGORY_LABELS } from "./categories";
 
 function plainText(html: string): string {
   return new DOMParser().parseFromString(html, "text/html").body.textContent || "";
-}
-
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60_000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
 }
 
 function ScoreBadge({ score }: { score: number }) {
@@ -30,28 +22,7 @@ function ScoreBadge({ score }: { score: number }) {
   );
 }
 
-const CATEGORY_STYLES: Record<string, string> = {
-  hiring: "bg-green-50 text-green-700",
-  pain_point: "bg-violet-50 text-violet-700",
-  discussion: "bg-amber-50 text-amber-700",
-  noise: "bg-zinc-100 text-zinc-500",
-};
-
-const CATEGORY_BORDER: Record<string, string> = {
-  hiring: "border-l-green-500",
-  pain_point: "border-l-violet-500",
-  discussion: "border-l-amber-500",
-  noise: "border-l-zinc-400",
-};
-
-const CATEGORY_LABELS: Record<string, string> = {
-  hiring: "Hiring",
-  pain_point: "Pain point",
-  discussion: "Discussion",
-  noise: "Noise",
-};
-
-function CategoryChip({ category }: { category: string }) {
+function CategoryChip({ category }: { category: IntentCategory }) {
   const style = CATEGORY_STYLES[category] ?? "bg-zinc-100 text-zinc-500";
   return (
     <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${style}`}>
@@ -64,8 +35,8 @@ export default function ResultCard({ result }: { result: Result }) {
   const patch = usePatchResult();
   const del = useDeleteResult();
   const isUnread = result.isRead === false || result.isRead === null;
-  const borderColor = isUnread
-    ? (CATEGORY_BORDER[result.intentCategory ?? ""] ?? "border-l-zinc-400")
+  const borderColor = isUnread && result.intentCategory
+    ? (CATEGORY_BORDER[result.intentCategory] ?? "border-l-zinc-400")
     : "border-l-transparent";
 
   return (
@@ -86,7 +57,7 @@ export default function ResultCard({ result }: { result: Result }) {
 
       <p className="text-xs text-zinc-500">
         {result.author}
-        {result.publishedAt ? ` · ${timeAgo(result.publishedAt)}` : ""}
+        {result.publishedAt ? ` · ${formatTimeAgo(result.publishedAt)}` : ""}
       </p>
 
       {result.matchedKeywords.length > 0 && (

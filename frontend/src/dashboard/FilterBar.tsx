@@ -1,7 +1,8 @@
 import { MultiSelect, MultiSelectItem, Select, SelectItem } from "@tremor/react";
 import type { IntentCategory, Monitor } from "@signal-monitor/shared";
 import type { FilterState } from "./useFilters";
-import { FILTER_DEFAULTS } from "./useFilters";
+import { hasActiveFilters } from "./useFilters";
+import { CATEGORY_LIST } from "./categories";
 
 interface FilterBarProps {
   filters: FilterState;
@@ -15,13 +16,6 @@ interface FilterBarProps {
   onSavedOnlyChange: (v: boolean) => void;
   onClear: () => void;
 }
-
-const CATEGORIES: { value: IntentCategory; label: string }[] = [
-  { value: "hiring", label: "Hiring" },
-  { value: "pain_point", label: "Pain point" },
-  { value: "discussion", label: "Discussion" },
-  { value: "noise", label: "Noise" },
-];
 
 const dateInputClass =
   "w-full h-9 rounded-tremor-default border border-tremor-border bg-tremor-background px-3 text-sm text-tremor-content-strong focus:outline-none focus:ring-2 focus:ring-tremor-brand";
@@ -38,14 +32,7 @@ export default function FilterBar({
   onSavedOnlyChange,
   onClear,
 }: FilterBarProps) {
-  const hasActiveFilters =
-    filters.categories.length > 0 ||
-    filters.minScore !== FILTER_DEFAULTS.minScore ||
-    filters.monitorId !== "" ||
-    filters.from !== "" ||
-    filters.to !== "" ||
-    filters.sort !== FILTER_DEFAULTS.sort ||
-    filters.savedOnly;
+  const isFiltered = hasActiveFilters(filters);
 
   return (
     <section aria-label="Filters" className="bg-white border-b border-zinc-200 px-4 sm:px-6 py-3">
@@ -57,7 +44,7 @@ export default function FilterBar({
             onValueChange={v => onCategoriesChange(v as IntentCategory[])}
             placeholder="All categories"
           >
-            {CATEGORIES.map(({ value, label }) => (
+            {CATEGORY_LIST.map(({ value, label }) => (
               <MultiSelectItem key={value} value={value}>
                 {label}
               </MultiSelectItem>
@@ -143,7 +130,7 @@ export default function FilterBar({
 
         <button
           onClick={onClear}
-          disabled={!hasActiveFilters}
+          disabled={!isFiltered}
           className="h-9 px-3 text-sm text-zinc-400 border border-zinc-200 rounded-tremor-default shrink-0 disabled:opacity-40 disabled:cursor-default enabled:hover:text-zinc-900 enabled:hover:bg-zinc-50"
         >
           Clear filters

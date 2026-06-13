@@ -21,6 +21,18 @@ export const FILTER_DEFAULTS: FilterState = {
   savedOnly: false,
 };
 
+export function hasActiveFilters(filters: FilterState): boolean {
+  return (
+    filters.categories.length > 0 ||
+    filters.minScore !== FILTER_DEFAULTS.minScore ||
+    filters.monitorId !== "" ||
+    filters.from !== "" ||
+    filters.to !== "" ||
+    filters.sort !== FILTER_DEFAULTS.sort ||
+    filters.savedOnly
+  );
+}
+
 export function useFilters() {
   const [filters, setFilters] = useState<FilterState>(FILTER_DEFAULTS);
   return {

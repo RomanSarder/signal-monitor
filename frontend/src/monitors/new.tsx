@@ -1,73 +1,28 @@
 import { useState } from "react";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { Card, TextInput, Select, SelectItem } from "@tremor/react";
-import { X } from "lucide-react";
 import TopNav from "../TopNav";
 import { useCreateMonitor } from "./queries";
-
-const INTERVAL_OPTIONS = [
-  { value: 30, label: "30 minutes" },
-  { value: 60, label: "1 hour" },
-  { value: 360, label: "6 hours" },
-  { value: 1440, label: "24 hours" },
-  { value: 10080, label: "7 days" },
-];
-
-const labelClass = "block text-sm font-medium text-zinc-900 mb-1.5";
-const chipClass =
-  "inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-sm";
+import { useKeywords } from "./useKeywords";
+import KeywordField from "./KeywordField";
+import { INTERVAL_OPTIONS, labelClass } from "./constants";
 
 export default function MonitorsNew() {
   const navigate = useNavigate();
   const createMonitor = useCreateMonitor();
+  const kw = useKeywords();
 
   const [name, setName] = useState("");
-  const [keywords, setKeywords] = useState<string[]>([]);
-  const [kwInput, setKwInput] = useState("");
-  const [kwError, setKwError] = useState(false);
   const [intervalMinutes, setIntervalMinutes] = useState(30);
-
-  function addKeyword(raw: string) {
-    const kw = raw.replace(/,/g, "").trim();
-    if (!kw || keywords.includes(kw)) return;
-    setKeywords((prev) => [...prev, kw]);
-    setKwError(false);
-  }
-
-  function handleKwKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      addKeyword(kwInput);
-      setKwInput("");
-    } else if (e.key === ",") {
-      e.preventDefault();
-      addKeyword(kwInput);
-      setKwInput("");
-    }
-  }
-
-  function handleKwChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const val = e.target.value;
-    if (val.endsWith(",")) {
-      addKeyword(val);
-      setKwInput("");
-    } else {
-      setKwInput(val);
-    }
-  }
-
-  function removeKeyword(kw: string) {
-    setKeywords((prev) => prev.filter((k) => k !== kw));
-  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (keywords.length === 0) {
-      setKwError(true);
+    if (kw.keywords.length === 0) {
+      kw.setKwError(true);
       return;
     }
     createMonitor.mutate(
-      { name, keywords, sources: ["hn"], intervalMinutes },
+      { name, keywords: kw.keywords, sources: ["hn"], intervalMinutes },
       { onSuccess: () => navigate({ to: "/monitors" }) },
     );
   }
@@ -94,43 +49,7 @@ export default function MonitorsNew() {
                 />
               </div>
 
-              <div>
-                <label htmlFor="kw-input" className={labelClass}>
-                  Keywords <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="kw-input"
-                  type="text"
-                  value={kwInput}
-                  onChange={handleKwChange}
-                  onKeyDown={handleKwKeyDown}
-                  placeholder="Type a keyword and press Enter or comma"
-                  className="w-full rounded-tremor-default border border-tremor-border bg-tremor-background px-3 py-2 text-sm text-tremor-content-strong placeholder:text-tremor-content focus:outline-none focus:ring-2 focus:ring-tremor-brand-subtle"
-                  aria-describedby={kwError ? "kw-error" : undefined}
-                />
-                {keywords.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {keywords.map((kw) => (
-                      <span key={kw} className={chipClass}>
-                        {kw}
-                        <button
-                          type="button"
-                          onClick={() => removeKeyword(kw)}
-                          aria-label={`Remove keyword ${kw}`}
-                          className="ml-0.5 hover:text-indigo-900"
-                        >
-                          <X size={12} strokeWidth={2} />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-                {kwError && (
-                  <p id="kw-error" role="alert" className="mt-1.5 text-sm text-red-600">
-                    Add at least one keyword.
-                  </p>
-                )}
-              </div>
+              <KeywordField id="kw-input" required {...kw} />
 
               <div>
                 <label htmlFor="interval-select" className={labelClass}>

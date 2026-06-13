@@ -1,6 +1,6 @@
 import { useMonitors, useInfiniteResults, useStats } from "./queries";
 import TopNav from "../TopNav";
-import { useFilters, FILTER_DEFAULTS } from "./useFilters";
+import { useFilters, hasActiveFilters } from "./useFilters";
 import FilterBar from "./FilterBar";
 import StatsBar from "./StatsBar";
 import ResultCard from "./ResultCard";
@@ -47,14 +47,7 @@ export default function Dashboard() {
     }
 
     if (total === 0) {
-      const hasActiveFilters =
-        filters.categories.length > 0 ||
-        filters.minScore !== FILTER_DEFAULTS.minScore ||
-        filters.monitorId !== "" ||
-        filters.from !== "" ||
-        filters.to !== "" ||
-        filters.savedOnly;
-      return hasActiveFilters
+      return hasActiveFilters(filters)
         ? <EmptyState variant="all-caught-up" onClear={clearFilters} />
         : <EmptyState variant="no-results" />;
     }
