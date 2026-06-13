@@ -5,7 +5,7 @@ import { relations } from "drizzle-orm";
 
 export const jobRunSources = pgTable("job_run_sources", {
   id: uuid().primaryKey().defaultRandom(),
-  jobRunId: uuid("job_run_id").references(() => jobRuns.id),
+  jobRunId: uuid("job_run_id").references(() => jobRuns.id, { onDelete: 'cascade' }),
   source: text().notNull(),
   status: text()
     .notNull()

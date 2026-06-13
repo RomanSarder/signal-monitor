@@ -57,6 +57,13 @@
       "when": 1781267592177,
       "tag": "0007_workable_redwing",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1781346292180,
+      "tag": "0008_wooden_wither",
+      "breakpoints": true
     }
   ]
 }
