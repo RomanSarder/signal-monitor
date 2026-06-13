@@ -63,7 +63,6 @@ export default function Settings() {
       <main className="flex-1 w-full max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         <h1 className="text-lg font-semibold text-zinc-900">Settings</h1>
 
-        {/* Account */}
         <Card>
           <h2 className="text-sm font-semibold text-zinc-900 mb-5">Account</h2>
 
@@ -153,7 +152,6 @@ export default function Settings() {
           </form>
         </Card>
 
-        {/* Digest */}
         <Card>
           <h2 className="text-sm font-semibold text-zinc-900 mb-5">Digest</h2>
 

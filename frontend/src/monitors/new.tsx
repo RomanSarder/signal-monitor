@@ -80,7 +80,6 @@ export default function MonitorsNew() {
           <h1 className="text-lg font-semibold text-zinc-900 mb-5">New monitor</h1>
           <Card>
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Name */}
               <div>
                 <label htmlFor="monitor-name" className={labelClass}>
                   Name <span className="text-red-500">*</span>
@@ -95,7 +94,6 @@ export default function MonitorsNew() {
                 />
               </div>
 
-              {/* Keywords */}
               <div>
                 <label htmlFor="kw-input" className={labelClass}>
                   Keywords <span className="text-red-500">*</span>
@@ -134,7 +132,6 @@ export default function MonitorsNew() {
                 )}
               </div>
 
-              {/* Polling interval */}
               <div>
                 <label htmlFor="interval-select" className={labelClass}>
                   Polling interval
@@ -152,7 +149,6 @@ export default function MonitorsNew() {
                 </Select>
               </div>
 
-              {/* Source */}
               <div>
                 <span className={labelClass}>Source</span>
                 <label className="flex items-center gap-2 text-sm text-zinc-400 cursor-not-allowed select-none">
@@ -167,14 +163,12 @@ export default function MonitorsNew() {
                 </label>
               </div>
 
-              {/* API error */}
               {createMonitor.error && (
                 <div role="alert" className="rounded text-sm bg-red-50 px-3 py-2 text-red-700">
                   {createMonitor.error.message}
                 </div>
               )}
 
-              {/* Actions */}
               <div className="flex justify-end gap-3 pt-1">
                 <Link
                   to="/monitors"

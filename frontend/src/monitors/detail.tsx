@@ -102,7 +102,6 @@ export default function MonitorDetail() {
   const { data: stats } = useMonitorStats(id);
   const { data: jobRuns } = useJobRuns(id);
 
-  // Form state
   const [name, setName] = useState("");
   const [keywords, setKeywords] = useState<string[]>([]);
   const [kwInput, setKwInput] = useState("");
@@ -110,7 +109,6 @@ export default function MonitorDetail() {
   const [intervalMinutes, setIntervalMinutes] = useState(30);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Pre-populate form when monitor loads
   useEffect(() => {
     if (monitor) {
       setName(monitor.name);
@@ -119,14 +117,12 @@ export default function MonitorDetail() {
     }
   }, [monitor]);
 
-  // Auto-dismiss success banner
   useEffect(() => {
     if (!showSuccess) return;
     const t = setTimeout(() => setShowSuccess(false), 3000);
     return () => clearTimeout(t);
   }, [showSuccess]);
 
-  // Delete dialog
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   function addKeyword(raw: string) {
@@ -184,7 +180,6 @@ export default function MonitorDetail() {
 
   const isRunBusy = monitor?.isRunning || run.isPending;
 
-  // — Loading state —
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col bg-zinc-50">
@@ -201,7 +196,6 @@ export default function MonitorDetail() {
     );
   }
 
-  // — Error state —
   if (error || !monitor) {
     return (
       <div className="min-h-screen flex flex-col bg-zinc-50">
@@ -229,7 +223,6 @@ export default function MonitorDetail() {
       <TopNav />
       <main className="flex-1 w-full max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
-        {/* Header */}
         <div>
           <div className="flex flex-wrap items-center gap-2 mb-3">
             {monitor.isRunning && (
@@ -242,7 +235,6 @@ export default function MonitorDetail() {
             <StatusBadge status={monitor.status} />
           </div>
 
-          {/* Action buttons */}
           <div className="flex flex-wrap items-center gap-1">
             {monitor.status === "active" ? (
               <button
@@ -291,11 +283,9 @@ export default function MonitorDetail() {
           </div>
         </div>
 
-        {/* Edit form */}
         <Card>
           <h2 className="text-sm font-semibold text-zinc-900 mb-4">Edit monitor</h2>
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Name */}
             <div>
               <label htmlFor="monitor-name" className={labelClass}>
                 Name <span className="text-red-500">*</span>
@@ -310,7 +300,6 @@ export default function MonitorDetail() {
               />
             </div>
 
-            {/* Keywords */}
             <div>
               <label htmlFor="kw-input" className={labelClass}>
                 Keywords <span className="text-red-500">*</span>
@@ -349,7 +338,6 @@ export default function MonitorDetail() {
               )}
             </div>
 
-            {/* Polling interval */}
             <div>
               <label htmlFor="interval-select" className={labelClass}>
                 Polling interval
@@ -367,7 +355,6 @@ export default function MonitorDetail() {
               </Select>
             </div>
 
-            {/* Source */}
             <div>
               <span className={labelClass}>Source</span>
               <label className="flex items-center gap-2 text-sm text-zinc-400 cursor-not-allowed select-none">
@@ -382,14 +369,12 @@ export default function MonitorDetail() {
               </label>
             </div>
 
-            {/* API error */}
             {update.error && (
               <div role="alert" className="rounded text-sm bg-red-50 px-3 py-2 text-red-700">
                 {update.error.message}
               </div>
             )}
 
-            {/* Success banner */}
             {showSuccess && (
               <div role="status" className="rounded text-sm bg-green-50 px-3 py-2 text-green-700">
                 Monitor updated.
@@ -408,7 +393,6 @@ export default function MonitorDetail() {
           </form>
         </Card>
 
-        {/* Stats */}
         <Card>
           <h2 className="text-sm font-semibold text-zinc-900 mb-4">Stats</h2>
           <div className="grid grid-cols-3 gap-4 mb-5">
@@ -442,7 +426,6 @@ export default function MonitorDetail() {
           )}
         </Card>
 
-        {/* Job runs log */}
         <Card>
           <h2 className="text-sm font-semibold text-zinc-900 mb-4">Recent runs</h2>
           {!jobRuns || jobRuns.length === 0 ? (
@@ -472,7 +455,6 @@ export default function MonitorDetail() {
         </Card>
       </main>
 
-      {/* Delete confirm dialog */}
       <dialog
         ref={dialogRef}
         className="rounded-lg border border-zinc-200 shadow-lg p-6 w-full max-w-sm backdrop:bg-black/30"
