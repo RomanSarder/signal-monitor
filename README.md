@@ -37,12 +37,13 @@ One repeatable hourly job checks which users are due for a digest based on their
 **Why `job_run_sources` as a child table instead of JSONB on `job_runs`?**
 Per-source failure tracking needs to be queryable — which sources failed most, which keywords had no results. JSONB hides a real entity and loses schema enforcement.
 
-**What breaks first at scale?**
-Each monitor runs its own poll job at a user-configured interval. At 1,000 active monitors firing at different rates, two problems compound: total API call volume to HN Algolia becomes unpredictable and hard to cap, and many calls are redundant — multiple monitors watching the same keyword each firing their own independent query.
+## What I'd build next
 
-The fix is to replace per-monitor jobs with a single global poll job running on a fixed tick. It queries all active monitors due for a run, deduplicates their keywords, fires one HN query per unique keyword, then fans out results to every monitor that matched. 500 monitors watching "React hiring" = 1 API call. Each monitor's `last_run_at` is then updated based on its configured interval, preserving user-defined scheduling with minor precision loss on the tick boundary.
+- **Global poll coordinator** — currently each monitor runs its own independent poll job. Users with overlapping keywords generate redundant API requests. A global coordinator would deduplicate keywords across all active monitors and spawn one job per unique keyword, eliminating redundant requests entirely.
 
-To scale further, the global job becomes a coordinator — it pushes one BullMQ job per unique keyword into a `keyword-fetch-queue` and a pool of workers processes them concurrently. This gives horizontal scalability, per-keyword retries, and failure isolation without touching the rest of the architecture.
+- **Worker process extraction** — workers currently run inside the backend process, which means they compete for the same resources and cannot be scaled independently. Extracting workers into a separate process enables horizontal scaling of the polling and scoring pipeline without scaling the API server.
+
+- **Additional data sources** — HN-only limits signal volume. Reddit has significantly higher volume and broader topic coverage but requires API approval to access programmatically. Lobsters is a lower-friction addition in the interim — smaller community but higher signal-to-noise ratio.
 
 # Local Setup
 
