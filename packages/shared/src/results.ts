@@ -43,6 +43,10 @@ export interface ResultsListResponse {
   items: Result[];
 }
 
+export interface BulkDeleteResultsResponse {
+  deleted: number;
+}
+
 export interface ResultStats {
   byCategory: Array<{ category: string | null; count: number }>;
   bySource: Array<{ source: string; count: number }>;

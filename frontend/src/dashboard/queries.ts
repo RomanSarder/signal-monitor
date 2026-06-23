@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Monitor, PatchResultBody, ResultsListResponse, ResultStats } from "@signal-monitor/shared";
+import type { BulkDeleteResultsResponse, Monitor, PatchResultBody, ResultsListResponse, ResultStats } from "@signal-monitor/shared";
 import { apiFetch } from "../api";
 import type { FilterState } from "./useFilters";
 
@@ -65,6 +65,18 @@ export function useDeleteResult() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => apiFetch(`/results/${id}`, { method: "DELETE" }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["results"] }),
+  });
+}
+
+export function useClearNoise() {
+  const qc = useQueryClient();
+  return useMutation<BulkDeleteResultsResponse, Error, string>({
+    mutationFn: (monitorId: string) => {
+      const p = new URLSearchParams({ category: "noise" });
+      if (monitorId) p.set("monitorId", monitorId);
+      return apiFetch(`/results?${p}`, { method: "DELETE" });
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["results"] }),
   });
 }

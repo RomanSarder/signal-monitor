@@ -96,7 +96,7 @@ export default function Dashboard() {
         onClear={clearFilters}
       />
 
-      <StatsBar data={stats} isLoading={isStatsLoading} />
+      <StatsBar data={stats} isLoading={isStatsLoading} monitorId={filters.monitorId} />
 
       <main className="flex-1 flex flex-col">
         {renderFeed()}
