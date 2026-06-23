@@ -1,3 +1,5 @@
+import type { IntentCategory } from "@signal-monitor/shared";
+
 export type {
   IntentCategory,
   Result,
@@ -69,6 +71,52 @@ export const resultStatsSchema = {
         },
       },
     },
+  },
+} as const;
+
+export interface BulkDeleteResultsQuery {
+  category?: IntentCategory;
+  monitorId?: string;
+  minScore?: number;
+  isRead?: boolean;
+  isSaved?: boolean;
+  from?: string;
+  to?: string;
+}
+
+export const bulkDeleteQuerySchema = {
+  type: "object",
+  properties: {
+    monitorId: { type: "string" },
+    category: {
+      type: "string",
+      enum: ["hiring", "noise", "pain_point", "discussion"],
+    },
+    minScore: {
+      type: "integer",
+      minimum: 1,
+    },
+    isRead: {
+      type: "boolean",
+    },
+    isSaved: {
+      type: "boolean",
+    },
+    from: {
+      type: "string",
+      format: "date-time",
+    },
+    to: {
+      type: "string",
+      format: "date-time",
+    },
+  },
+} as const;
+
+export const bulkDeleteResponseSchema = {
+  type: "object",
+  properties: {
+    deleted: { type: "integer", minimum: 0 },
   },
 } as const;
 

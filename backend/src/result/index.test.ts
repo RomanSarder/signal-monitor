@@ -130,6 +130,62 @@ describe("DELETE /results/:id", () => {
   });
 });
 
+describe("DELETE /results (bulk)", () => {
+  it("deletes matching results and returns the count", async () => {
+    const app = build(mockDb([{ id: RESULT_ID }, { id: "another-id" }]));
+    const res = await app.inject({
+      method: "DELETE",
+      url: "/results?category=noise",
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ deleted: 2 });
+  });
+
+  it("returns deleted: 0 when nothing matches", async () => {
+    const app = build(mockDb([]));
+    const res = await app.inject({
+      method: "DELETE",
+      url: "/results?category=noise",
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ deleted: 0 });
+  });
+
+  it("returns 400 when no filter is provided (safety guard)", async () => {
+    const app = build(mockDb([]));
+    const res = await app.inject({ method: "DELETE", url: "/results" });
+    expect(res.statusCode).toBe(400);
+  });
+
+  it("returns 400 for an invalid category", async () => {
+    const app = build(mockDb([]));
+    const res = await app.inject({
+      method: "DELETE",
+      url: "/results?category=bogus",
+    });
+    expect(res.statusCode).toBe(400);
+  });
+
+  it("honors multiple filters", async () => {
+    const app = build(mockDb([{ id: RESULT_ID }]));
+    const res = await app.inject({
+      method: "DELETE",
+      url: `/results?category=noise&monitorId=${MONITOR_ID}`,
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ deleted: 1 });
+  });
+
+  it("returns 401 when not authenticated", async () => {
+    const app = build(mockDb([]), false);
+    const res = await app.inject({
+      method: "DELETE",
+      url: "/results?category=noise",
+    });
+    expect(res.statusCode).toBe(401);
+  });
+});
+
 describe("GET /results/stats", () => {
   it("returns counts by category, source, and day", async () => {
     const byCategoryRow = [{ category: "pain_point", count: 1 }];
