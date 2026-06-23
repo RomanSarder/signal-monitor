@@ -72,15 +72,6 @@ export default function SignIn() {
           {signIn.isPending ? "Signing in…" : "Sign in"}
         </button>
       </form>
-      <p className="mt-6 text-tremor-default text-tremor-content dark:text-dark-tremor-content">
-        Forgot your password?{" "}
-        <a
-          href="#"
-          className="font-medium text-tremor-brand hover:text-tremor-brand-emphasis dark:text-dark-tremor-brand dark:hover:text-dark-tremor-brand-emphasis"
-        >
-          Reset password
-        </a>
-      </p>
     </AuthPageLayout>
   );
 }
