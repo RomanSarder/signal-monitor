@@ -43,7 +43,7 @@ const schema = {
     RESEND_API_KEY: {
       type: "string",
     },
-    RESEND_FROM: {
+    RESEND_FROM_EMAIL: {
       type: "string",
       default: "onboarding@resend.dev",
     },

@@ -78,7 +78,7 @@ export function createDigestProcessor({ db, sendEmail }: DigestProcessorDeps) {
         log.info({ userId: dueUser.id, resultCount: count }, "sending digest email");
         const t = Date.now();
         const { error } = await sendEmail({
-          from: process.env.RESEND_FROM ?? "onboarding@resend.dev",
+          from: process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev",
           to: dueUser.email,
           subject: `Your Signal Monitor Digest — ${count} signal${count !== 1 ? "s" : ""}`,
           html,
